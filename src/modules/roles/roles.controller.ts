@@ -14,7 +14,6 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateRolDto } from './dto/crear-rol.dto';
 import { Role } from 'entities/role.entity';
 import { UpdateRolDto } from './dto/update-rol.dto';
-import { RolName } from 'src/types/roles';
 
 @Controller('roles')
 export class RolesController {

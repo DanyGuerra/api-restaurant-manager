@@ -19,13 +19,13 @@ export class UsersService {
     return this.usersRepository.findOne({ where: { id } });
   }
 
-  async updateRefreshToken(userId: string, refreshToken: string) {
-    await this.usersRepository.update(userId, { refreshToken });
-  }
+  async updateRefreshToken(userId: string, refreshToken: string | undefined) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) return;
 
-  // async removeRefreshToken(userId: string) {
-  //   await this.usersRepository.update(userId, { refreshToken: null });
-  // }
+    user.refreshToken = refreshToken;
+    await this.usersRepository.save(user);
+  }
 
   createUser(user: CreateUserDto, hashedPassword: string) {
     return this.usersRepository.create({
@@ -33,6 +33,19 @@ export class UsersService {
       password: hashedPassword,
     });
   }
+
+  async updateUserPassword(userId: string, hashedPassword: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+    });
+
+    if (!user) return;
+
+    user.password = hashedPassword;
+
+    await this.usersRepository.save(user);
+  }
+
   saveUser(user: User) {
     return this.usersRepository.save(user);
   }

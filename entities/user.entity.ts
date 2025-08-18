@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-// import { UserBusinessRole } from './user-business-role.entity';
+import { UserBusinessRole } from './user-business-role.entity';
 
 @Entity('users')
 export class User {
@@ -34,6 +34,6 @@ export class User {
   @UpdateDateColumn({ nullable: true })
   updated_at: Date;
 
-  // @OneToMany(() => UserBusinessRole, (ur) => ur.user)
-  // restaurantRoles: UserBusinessRole[];
+  @OneToMany(() => UserBusinessRole, (ur) => ur.user)
+  businessRoles: UserBusinessRole[];
 }

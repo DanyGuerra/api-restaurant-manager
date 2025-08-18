@@ -1,4 +1,4 @@
-// import { UserBusinessRole } from './user-business-role.entity';
+import { UserBusinessRole } from './user-business-role.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 @Entity('business')
@@ -12,6 +12,6 @@ export class Business {
   @Column({ nullable: true })
   address: string;
 
-  //   @OneToMany(() => UserBusinessRole, (ur) => ur.restaurant)
-  //   userRoles: UserBusinessRole[];
+  @OneToMany(() => UserBusinessRole, (ur) => ur.business)
+  userRoles: UserBusinessRole[];
 }

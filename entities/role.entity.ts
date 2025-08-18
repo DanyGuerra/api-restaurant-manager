@@ -1,14 +1,15 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-// import { UserBusinessRole } from './user-business-role.entity';
+import { UserBusinessRole } from './user-business-role.entity';
+import { RolName } from 'src/types/roles';
 
 @Entity('roles')
 export class Role {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
-  name: string; // 'admin', 'owner', 'waiter'
+  @Column({ type: 'enum', enum: RolName, unique: true })
+  name: RolName;
 
-  //   @OneToMany(() => UserBusinessRole, (ur) => ur.role)
-  //   userRoles: UserBusinessRole[];
+  @OneToMany(() => UserBusinessRole, (ur) => ur.role)
+  userRoles: UserBusinessRole[];
 }

@@ -6,6 +6,8 @@ import { AppService } from './app.service';
 import { HelpController } from './modules/help/help.controller';
 import { AuthModule } from '././modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { BusinessModule } from './modules/business/business.module';
 
 @Module({
   controllers: [AppController, HelpController],
@@ -25,6 +27,8 @@ import { UsersModule } from './modules/users/users.module';
     }),
     AuthModule,
     UsersModule,
+    RolesModule,
+    BusinessModule,
   ],
 })
 export class AppModule {}

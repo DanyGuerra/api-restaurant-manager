@@ -6,11 +6,13 @@ import {
   Req,
   Res,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
-import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthService } from './auth.service';
-import { Request, Response } from 'express';
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { LoginUserDto } from '../users/dto/login-user.dto';
+import { Request, Response } from 'express';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -24,17 +26,17 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   async login(
-    @Res({ passthrough: true }) res: Response,
     @Body() body: LoginUserDto,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const user = await this.authService.validateUser(body.email, body.password);
     const tokens = await this.authService.login(user);
 
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      path: '/auth/refresh',
+      path: '/auth',
     });
 
     return { access_token: tokens.accessToken };
@@ -43,28 +45,60 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(200)
   async refresh(
-    @Res({ passthrough: true }) res: Response,
     @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.cookies?.['refresh_token'];
+    const refreshToken = req.cookies['refresh_token'];
+    if (!refreshToken) {
+      throw new UnauthorizedException('No refresh token provided');
+    }
+
+    const payload = await this.authService.verifyRefreshToken(refreshToken);
+    const tokens = await this.authService.refresh(payload.sub, refreshToken);
+
+    res.cookie('refresh_token', tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/auth',
+    });
+
+    return { access_token: tokens.accessToken };
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies['refresh_token'];
+
+    console.log('perro', refreshToken);
 
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
     }
 
     const payload = await this.authService.verifyRefreshToken(refreshToken);
+    await this.authService.removeRefreshToken(payload.sub);
 
-    const userId = payload.sub;
+    res.clearCookie('refresh_token', { path: '/auth' });
 
-    const tokens = await this.authService.refresh(userId, refreshToken);
+    return { message: 'Logout successful' };
+  }
 
-    res.cookie('refresh_token', tokens.refresh_token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      path: '/auth/refresh',
-    });
+  @Post('update-password')
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(200)
+  async updatePassword(
+    @Req() req: any,
+    @Body() body: { oldPassword: string; newPassword: string },
+  ) {
+    const userId = req.user.sub;
 
-    return tokens;
+    return this.authService.updatePassword(
+      userId,
+      body.oldPassword,
+      body.newPassword,
+    );
   }
 }

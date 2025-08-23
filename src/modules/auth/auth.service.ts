@@ -60,8 +60,7 @@ export class AuthService {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    const { password: _, ...result } = user;
-    return result;
+    return user;
   }
 
   async login(user: UserWithoutPassword) {

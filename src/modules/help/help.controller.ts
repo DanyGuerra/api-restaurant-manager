@@ -4,7 +4,5 @@ import { Controller, Get, HttpCode } from '@nestjs/common';
 export class HelpController {
   @Get()
   @HttpCode(200)
-  apiHelp() {
-    return { message: 'success', statusCode: 200 };
-  }
+  apiHelp() {}
 }

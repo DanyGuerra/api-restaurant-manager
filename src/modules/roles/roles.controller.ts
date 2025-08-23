@@ -14,10 +14,17 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateRolDto } from './dto/crear-rol.dto';
 import { Role } from 'entities/role.entity';
 import { UpdateRolDto } from './dto/update-rol.dto';
+import { RolName } from 'src/types/roles';
 
 @Controller('roles')
 export class RolesController {
   constructor(private rolesService: RolesService) {}
+
+  @Get('get-byname')
+  @UseGuards(JwtAuthGuard)
+  async getByName(@Query() query: CreateRolDto) {
+    return this.rolesService.getByName(query.name);
+  }
 
   @Get()
   @UseGuards(JwtAuthGuard)

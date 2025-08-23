@@ -19,7 +19,7 @@ export class RolesService {
   ) {}
 
   async getAll(): Promise<Role[]> {
-    return await this.roleRepository.find({ order: { name: 'ASC' } });
+    return await this.roleRepository.find({ order: { id: 'ASC' } });
   }
 
   async getById(id: number): Promise<Role> {
@@ -34,6 +34,7 @@ export class RolesService {
       return await this.roleRepository.save(role);
     } catch (error) {
       if (error.code === '23505')
+        // Postgres error code for unique violation
         throw new ConflictException('Role already exists');
       throw error;
     }
@@ -43,6 +44,14 @@ export class RolesService {
     const role = await this.getById(id);
     Object.assign(role, dto);
     return await this.roleRepository.save(role);
+  }
+
+  async getByName(name: RolName) {
+    const role = await this.roleRepository.findOne({ where: { name } });
+    if (!role) {
+      throw new NotFoundException(`Role with name "${name}" not found`);
+    }
+    return role;
   }
 
   async delete(id: number): Promise<void> {

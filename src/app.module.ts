@@ -8,6 +8,7 @@ import { AuthModule } from '././modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { BusinessModule } from './modules/business/business.module';
+import { UserBusinessRolesModule } from './modules/user-business-role/user-business-role.module';
 
 @Module({
   controllers: [AppController, HelpController],
@@ -29,6 +30,7 @@ import { BusinessModule } from './modules/business/business.module';
     UsersModule,
     RolesModule,
     BusinessModule,
+    UserBusinessRolesModule,
   ],
 })
 export class AppModule {}

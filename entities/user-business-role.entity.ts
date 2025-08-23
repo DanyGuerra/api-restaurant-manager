@@ -1,9 +1,10 @@
-import { Entity, PrimaryColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryColumn, ManyToOne, JoinColumn, Unique } from 'typeorm';
 import { User } from './user.entity';
 import { Business } from './business.entity';
 import { Role } from './role.entity';
 
 @Entity('user_business_roles')
+@Unique(['user_id', 'business_id', 'role_id'])
 export class UserBusinessRole {
   @PrimaryColumn('uuid')
   user_id: string;

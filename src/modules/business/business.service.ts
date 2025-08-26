@@ -43,16 +43,34 @@ export class BusinessService {
     return await this.businessRepository.save(updatedBusiness);
   }
 
-  save(business: Business) {
-    return this.businessRepository.save(business);
+  async save(business: Business) {
+    return await this.businessRepository.save(business);
   }
 
-  getAll() {
-    return this.businessRepository.find({});
+  async getAll() {
+    return await this.businessRepository.find({});
   }
 
-  getById(id: string) {
-    const business = this.businessRepository.findOneBy({ id });
+  async getById(id: string) {
+    const business = await this.businessRepository.findOneBy({ id });
+    if (!business) {
+      throw new NotFoundException(`Business not found`);
+    }
+    return await business;
+  }
+
+  async getByOwnerId(ownerId: string) {
+    const business = await this.businessRepository.findOneBy({
+      owner_id: ownerId,
+    });
+    if (!business) {
+      throw new NotFoundException(`Business not found`);
+    }
+    return await business;
+  }
+
+  async deleteById(id: string) {
+    const business = await this.businessRepository.delete({ id });
     if (!business) {
       throw new NotFoundException(`Business not found`);
     }

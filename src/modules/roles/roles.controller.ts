@@ -17,23 +17,21 @@ import { UpdateRolDto } from './dto/update-rol.dto';
 import { RolName } from 'src/types/roles';
 
 @Controller('roles')
+@UseGuards(JwtAuthGuard)
 export class RolesController {
   constructor(private rolesService: RolesService) {}
 
   @Get('get-byname')
-  @UseGuards(JwtAuthGuard)
   async getByName(@Query() query: CreateRolDto) {
     return this.rolesService.getByName(query.name);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async getAll(): Promise<Role[]> {
     return this.rolesService.getAll();
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
   async getById(@Param('id') id: string): Promise<Role> {
     return this.rolesService.getById(Number(id));
   }
@@ -45,7 +43,6 @@ export class RolesController {
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateRolDto,
@@ -54,7 +51,6 @@ export class RolesController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
   async delete(@Param('id') id: string): Promise<void> {
     return this.rolesService.delete(Number(id));
   }

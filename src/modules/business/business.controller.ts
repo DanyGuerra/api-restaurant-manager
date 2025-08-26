@@ -1,8 +1,9 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
-  Param,
+  Headers,
   Post,
   Put,
   UseGuards,
@@ -12,40 +13,63 @@ import { CreateBusinessDto } from './dto/create-business.dto';
 import { BusinessService } from './business.service';
 import { UsersService } from '../users/users.service';
 import { UpdateBusinessDto } from './dto/update-business.dto';
+import { Roles } from '../auth/roles.decorator';
+import { RolId, RolName } from 'src/types/roles';
+import { RolesGuard } from '../auth/roles.guard';
+import { UserBusinessRolesService } from '../user-business-role/user-business-role.service';
+import { businessIdHeader, userIdHeader } from 'src/types/headers';
 
 @Controller('business')
+@UseGuards(JwtAuthGuard)
 export class BusinessController {
   constructor(
     private businessService: BusinessService,
+    private userBusinessRolesService: UserBusinessRolesService,
     private userService: UsersService,
   ) {}
 
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  async getById(@Param('id') id: string) {
+  @Get('owner')
+  async getByOwnerId(@Headers(userIdHeader) id: string) {
+    return this.businessService.getByOwnerId(id);
+  }
+
+  @Get()
+  async getById(@Headers(businessIdHeader) id: string) {
     return this.businessService.getById(id);
   }
 
-  @Put(':id')
-  @UseGuards(JwtAuthGuard)
-  async updateBusiness(
-    @Param('id') id: string,
+  @Put()
+  @Roles(RolName.OWNER)
+  @UseGuards(RolesGuard)
+  updateBusiness(
+    @Headers(businessIdHeader) id: string,
     @Body() updateBusiness: UpdateBusinessDto,
   ) {
     return this.businessService.updateBusiness(id, updateBusiness);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async create(@Body() createBusiness: CreateBusinessDto) {
     await this.userService.findById(createBusiness.owner_id);
     const business = await this.businessService.createBusiness(createBusiness);
+    await this.userBusinessRolesService.assignRole(
+      createBusiness.owner_id,
+      business.id,
+      RolId.OWNER,
+    );
+
     return await this.businessService.save(business);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
-  async getAll() {
+  getAll() {
     return this.businessService.getAll();
+  }
+
+  @Delete()
+  @Roles(RolName.OWNER)
+  @UseGuards(RolesGuard)
+  delete(@Headers(businessIdHeader) id: string) {
+    return this.businessService.deleteById(id);
   }
 }

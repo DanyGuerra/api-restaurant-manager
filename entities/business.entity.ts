@@ -31,6 +31,7 @@ export class Business {
   })
   @JoinColumn({ name: 'owner_id' })
   owner: User;
+
   @OneToMany(() => UserBusinessRole, (ur) => ur.business)
   userRoles: UserBusinessRole[];
 }

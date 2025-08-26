@@ -6,23 +6,25 @@ import {
   Param,
   Patch,
   Delete,
-  ConflictException,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UserBusinessRolesService } from './user-business-role.service';
 import { AssignRoleDto } from './dto/create-business-user-role.dto';
 import { GetUserDto } from './dto/remove-user-business.dto';
-import { RolesService } from '../roles/roles.service';
+import { Roles } from '../auth/roles.decorator';
 import { RolName } from 'src/types/roles';
+import { RolesGuard } from '../auth/roles.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('user-business-roles')
+@UseGuards(JwtAuthGuard)
 export class UserBusinessRolesController {
-  constructor(
-    private readonly ubrService: UserBusinessRolesService,
-    private readonly rolesService: RolesService,
-  ) {}
+  constructor(private readonly ubrService: UserBusinessRolesService) {}
 
   @Post()
+  @Roles(RolName.OWNER)
+  @UseGuards(RolesGuard)
   async assignRole(@Body() body: AssignRoleDto) {
     return this.ubrService.assignRole(
       body.user_id,
@@ -32,6 +34,8 @@ export class UserBusinessRolesController {
   }
 
   @Get('business/:id')
+  @Roles(RolName.OWNER)
+  @UseGuards(RolesGuard)
   async getRolesByBusiness(@Param('id') businessId: string) {
     return this.ubrService.findByBusiness(businessId);
   }
@@ -45,10 +49,14 @@ export class UserBusinessRolesController {
   }
 
   @Patch()
+  @Roles(RolName.OWNER)
+  @UseGuards(RolesGuard)
   async updateRole(@Body() body: AssignRoleDto) {
-    const { business_id, user_id, role_id } = body;
-
-    return this.ubrService.updateRole(user_id, business_id, role_id);
+    return this.ubrService.updateRole(
+      body.user_id,
+      body.business_id,
+      body.role_id,
+    );
   }
 
   @Delete()

@@ -16,6 +16,7 @@ import { Product } from 'entities/product.entity';
 import { OptionGroup } from 'entities/option-group.entity';
 import { Option } from 'entities/option.entity';
 import { ProductGroupModule } from './modules/product-group/product-group.module';
+import { ProductsModule } from './modules/products/products.module';
 
 @Module({
   controllers: [AppController, HelpController],
@@ -47,6 +48,7 @@ import { ProductGroupModule } from './modules/product-group/product-group.module
     BusinessModule,
     UserBusinessRolesModule,
     ProductGroupModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}

@@ -9,11 +9,26 @@ import { UsersModule } from './modules/users/users.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { BusinessModule } from './modules/business/business.module';
 import { UserBusinessRolesModule } from './modules/user-business-role/user-business-role.module';
+import { Business } from 'entities/business.entity';
+import { UserBusinessRole } from 'entities/user-business-role.entity';
+import { ProductGroup } from 'entities/product-group.entity';
+import { Product } from 'entities/product.entity';
+import { OptionGroup } from 'entities/option-group.entity';
+import { Option } from 'entities/option.entity';
+import { ProductGroupModule } from './modules/product-group/product-group.module';
 
 @Module({
   controllers: [AppController, HelpController],
   providers: [AppService],
   imports: [
+    TypeOrmModule.forFeature([
+      Business,
+      UserBusinessRole,
+      ProductGroup,
+      Product,
+      OptionGroup,
+      Option,
+    ]),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -31,6 +46,7 @@ import { UserBusinessRolesModule } from './modules/user-business-role/user-busin
     RolesModule,
     BusinessModule,
     UserBusinessRolesModule,
+    ProductGroupModule,
   ],
 })
 export class AppModule {}

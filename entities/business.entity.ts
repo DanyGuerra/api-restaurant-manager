@@ -9,6 +9,7 @@ import {
   Unique,
 } from 'typeorm';
 import { User } from './user.entity';
+import { ProductGroup } from './product-group.entity';
 
 @Entity('business')
 @Unique(['name', 'owner_id'])
@@ -34,4 +35,7 @@ export class Business {
 
   @OneToMany(() => UserBusinessRole, (ur) => ur.business)
   userRoles: UserBusinessRole[];
+
+  @OneToMany(() => ProductGroup, (productGroup) => productGroup.business)
+  productGroup: ProductGroup[];
 }

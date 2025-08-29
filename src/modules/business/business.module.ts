@@ -6,10 +6,11 @@ import { BusinessController } from './business.controller';
 import { BusinessService } from './business.service';
 import { UsersModule } from '../users/users.module';
 import { UserBusinessRolesModule } from '../user-business-role/user-business-role.module';
+import { ProductGroup } from 'entities/product-group.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Business, UserBusinessRole]),
+    TypeOrmModule.forFeature([Business, UserBusinessRole, ProductGroup]),
     UsersModule,
     UserBusinessRolesModule,
   ],

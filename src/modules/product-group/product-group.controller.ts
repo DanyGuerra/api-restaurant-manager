@@ -42,6 +42,8 @@ export class ProductGroupController {
   }
 
   @Patch(':id')
+  @Roles(RolName.OWNER)
+  @UseGuards(RolesGuard)
   updateProductGroupById(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateProductGroup: UpdateProductGroupDto,
@@ -53,6 +55,8 @@ export class ProductGroupController {
   }
 
   @Delete(':id')
+  @Roles(RolName.OWNER)
+  @UseGuards(RolesGuard)
   deleteProductGroupById(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.productGroupService.deleteProductGroupById(id);
   }

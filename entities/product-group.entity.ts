@@ -28,7 +28,7 @@ export class ProductGroup {
   @Column({ nullable: true })
   description: string;
 
-  @OneToMany(() => Product, (product) => product.menu)
+  @OneToMany(() => Product, (product) => product.productGroup)
   products: Product[];
 
   @CreateDateColumn({ type: 'timestamp' })

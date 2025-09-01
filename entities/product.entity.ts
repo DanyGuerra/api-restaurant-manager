@@ -7,10 +7,10 @@ import {
   UpdateDateColumn,
   JoinTable,
   ManyToMany,
+  JoinColumn,
 } from 'typeorm';
 import { ProductGroup } from './product-group.entity';
 import { OptionGroup } from './option-group.entity';
-import { IsUUID } from 'class-validator';
 
 @Entity('products')
 export class Product {
@@ -20,7 +20,8 @@ export class Product {
   @Column()
   group_product_id: string;
 
-  @ManyToOne(() => ProductGroup, (menu) => menu.products)
+  @ManyToOne(() => ProductGroup, (productGroup) => productGroup.products)
+  @JoinColumn({ name: 'group_product_id' })
   productGroup: ProductGroup;
 
   @Column()

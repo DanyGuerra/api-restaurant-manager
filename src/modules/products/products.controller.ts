@@ -25,7 +25,7 @@ export class ProductsController {
   @Post()
   @Roles(RolName.OWNER)
   @UseGuards(RolesGuard)
-  createProduct(@Body() createProductDto: CreateProductDto) {
+  createProduct(@Body() createProductDto: CreateProductDto[]) {
     return this.productService.createProduct(createProductDto);
   }
 

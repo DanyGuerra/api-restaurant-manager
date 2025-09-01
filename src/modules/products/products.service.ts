@@ -12,7 +12,7 @@ export class ProductsService {
     private productRepository: Repository<Product>,
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto) {
+  async createProduct(createProductDto: CreateProductDto[]) {
     const product = await this.productRepository.create(createProductDto);
     return this.productRepository.save(product);
   }

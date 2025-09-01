@@ -14,13 +14,19 @@ import { UserBusinessRole } from 'entities/user-business-role.entity';
 import { ProductGroup } from 'entities/product-group.entity';
 import { Product } from 'entities/product.entity';
 import { OptionGroup } from 'entities/option-group.entity';
-import { Option } from 'entities/option.entity';
+import { ProductOption } from 'entities/product-option.entity';
 import { ProductGroupModule } from './modules/product-group/product-group.module';
 import { ProductsModule } from './modules/products/products.module';
+import { OptionGroupModule } from './modules/option-group/option-group.module';
+import { ProductOptionGroupController } from './modules/product-option-group/product-option-group.controller';
+import { ProductOptionGroupModule } from './modules/product-option-group/product-option-group.module';
+import { ProductOptionGroupService } from './modules/product-option-group/product-option-group.service';
+import { ProductOptionGroup } from 'entities/product-option-group.entity';
+import { ProductOptionModule } from './modules/product-option/product-option.module';
 
 @Module({
-  controllers: [AppController, HelpController],
-  providers: [AppService],
+  controllers: [AppController, HelpController, ProductOptionGroupController],
+  providers: [AppService, ProductOptionGroupService],
   imports: [
     TypeOrmModule.forFeature([
       Business,
@@ -28,7 +34,8 @@ import { ProductsModule } from './modules/products/products.module';
       ProductGroup,
       Product,
       OptionGroup,
-      Option,
+      ProductOption,
+      ProductOptionGroup,
     ]),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
@@ -49,6 +56,9 @@ import { ProductsModule } from './modules/products/products.module';
     UserBusinessRolesModule,
     ProductGroupModule,
     ProductsModule,
+    OptionGroupModule,
+    ProductOptionGroupModule,
+    ProductOptionModule,
   ],
 })
 export class AppModule {}

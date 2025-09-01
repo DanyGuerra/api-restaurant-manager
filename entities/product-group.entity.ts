@@ -6,7 +6,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
-  Unique,
+  JoinColumn,
 } from 'typeorm';
 import { Business } from './business.entity';
 import { Product } from './product.entity';
@@ -19,7 +19,10 @@ export class ProductGroup {
   @Column()
   business_id: string;
 
-  @ManyToOne(() => Business, (business) => business.productGroup)
+  @ManyToOne(() => Business, (business) => business.productGroup, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'business_id' })
   business: Business;
 
   @Column({ unique: true })

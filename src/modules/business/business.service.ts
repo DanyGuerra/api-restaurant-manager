@@ -51,6 +51,23 @@ export class BusinessService {
     return await this.businessRepository.find({});
   }
 
+  async getBusinessFullStructure(businessId: string) {
+    const business = await this.businessRepository.findOne({
+      where: { id: businessId },
+      relations: [
+        'productGroup',
+        'productGroup.products',
+        'productGroup.products.option_groups',
+      ],
+    });
+
+    if (!business) {
+      throw new NotFoundException(`Business with id ${businessId} not found`);
+    }
+
+    return business;
+  }
+
   async getById(id: string) {
     const business = await this.businessRepository.findOneBy({ id });
     if (!business) {

@@ -10,7 +10,7 @@ import { Type } from 'class-transformer';
 
 export class CreateProductOptionDto {
   @IsUUID()
-  group_id: string;
+  option_group_id: string;
 
   @IsString()
   name: string; // Example: Large, Medium, Small
@@ -28,7 +28,7 @@ export class CreateProductOptionDto {
 export class UpdateProductOptionDto {
   @IsOptional()
   @IsUUID()
-  group_id?: string;
+  option_group_id?: string;
 
   @IsOptional()
   @IsString()

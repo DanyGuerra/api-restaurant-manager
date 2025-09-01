@@ -15,7 +15,7 @@ export class ProductOption {
   id: string;
 
   @Column()
-  group_id: string;
+  option_group_id: string;
 
   @ManyToOne(() => OptionGroup, (group) => group.options)
   @JoinColumn({ name: 'option_group_id' })

@@ -33,7 +33,7 @@ export class BusinessController {
     return this.businessService.getByOwnerId(id);
   }
 
-  @Get('full')
+  @Get('products')
   getFullBusiness(@Headers(businessIdHeader) id: string) {
     return this.businessService.getBusinessFullStructure(id);
   }

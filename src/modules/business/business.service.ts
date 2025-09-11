@@ -16,14 +16,19 @@ export class BusinessService {
     private businessRepository: Repository<Business>,
   ) {}
 
-  async createBusiness(dto: CreateBusinessDto): Promise<Business> {
-    const business = this.businessRepository.create(dto);
+  async createBusiness(
+    dto: CreateBusinessDto,
+    userId: string,
+  ): Promise<Business> {
+    const business = this.businessRepository.create({
+      ...dto,
+      owner_id: userId,
+    });
 
     try {
       return await this.businessRepository.save(business);
     } catch (error) {
       if (error.code === '23505') {
-        // Postgres error code for unique violation
         throw new ConflictException(
           'This business name is already taken for this owner',
         );
@@ -78,8 +83,8 @@ export class BusinessService {
   }
 
   async getByOwnerId(ownerId: string) {
-    const business = await this.businessRepository.findOneBy({
-      owner_id: ownerId,
+    const business = await this.businessRepository.find({
+      where: { owner_id: ownerId },
     });
     if (!business) {
       throw new NotFoundException(`Business not found`);

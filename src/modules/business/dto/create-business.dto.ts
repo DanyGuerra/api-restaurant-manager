@@ -7,7 +7,4 @@ export class CreateBusinessDto {
   @IsString()
   @IsOptional()
   address: string;
-
-  @IsUUID()
-  owner_id: string;
 }

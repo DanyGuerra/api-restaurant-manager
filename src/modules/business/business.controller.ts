@@ -6,6 +6,7 @@ import {
   Headers,
   Post,
   Put,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -17,7 +18,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolId, RolName } from 'src/types/roles';
 import { RolesGuard } from '../auth/roles.guard';
 import { UserBusinessRolesService } from '../user-business-role/user-business-role.service';
-import { businessIdHeader, userIdHeader } from 'src/types/headers';
+import { businessIdHeader } from 'src/types/headers';
 
 @Controller('business')
 @UseGuards(JwtAuthGuard)
@@ -29,8 +30,9 @@ export class BusinessController {
   ) {}
 
   @Get('owner')
-  async getByOwnerId(@Headers(userIdHeader) id: string) {
-    return this.businessService.getByOwnerId(id);
+  async getByOwnerId(@Req() req: any) {
+    const userId = req.user.sub;
+    return this.businessService.getByOwnerId(userId);
   }
 
   @Get('products')
@@ -54,11 +56,15 @@ export class BusinessController {
   }
 
   @Post()
-  async create(@Body() createBusiness: CreateBusinessDto) {
-    await this.userService.findById(createBusiness.owner_id);
-    const business = await this.businessService.createBusiness(createBusiness);
+  async create(@Body() createBusiness: CreateBusinessDto, @Req() req: any) {
+    const userId = req.user.sub;
+    await this.userService.findById(userId);
+    const business = await this.businessService.createBusiness(
+      createBusiness,
+      userId,
+    );
     await this.userBusinessRolesService.assignRole(
-      createBusiness.owner_id,
+      userId,
       business.id,
       RolId.OWNER,
     );
@@ -66,7 +72,7 @@ export class BusinessController {
     return await this.businessService.save(business);
   }
 
-  @Get()
+  @Get('all')
   getAll() {
     return this.businessService.getAll();
   }

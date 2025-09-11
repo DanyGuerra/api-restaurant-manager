@@ -35,8 +35,8 @@ export class AuthController {
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/auth',
+      sameSite: 'lax',
+      path: '/',
     });
 
     return { access_token: tokens.accessToken };
@@ -59,8 +59,8 @@ export class AuthController {
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/auth',
+      sameSite: 'lax',
+      path: '/',
     });
 
     return { access_token: tokens.accessToken };
@@ -79,7 +79,7 @@ export class AuthController {
     const payload = await this.authService.verifyRefreshToken(refreshToken);
     await this.authService.removeRefreshToken(payload.sub);
 
-    res.clearCookie('refresh_token', { path: '/auth' });
+    res.clearCookie('refresh_token', { path: '/' });
 
     return { message: 'Logout successful' };
   }

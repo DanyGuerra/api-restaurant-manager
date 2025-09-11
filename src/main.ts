@@ -7,6 +7,10 @@ import { ResponseInterceptor } from './interceptors/response/response.intercepto
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: process.env.HOST_FRONTEND,
+    credentials: true,
+  });
   app.use(cookieParser());
   app.useGlobalInterceptors(new ResponseInterceptor());
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));

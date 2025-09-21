@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Headers,
   Post,
   Put,
   Req,
@@ -18,7 +17,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolId, RolName } from 'src/types/roles';
 import { RolesGuard } from '../auth/roles.guard';
 import { UserBusinessRolesService } from '../user-business-role/user-business-role.service';
-import { businessIdHeader } from 'src/types/headers';
+import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 
 @Controller('business')
 @UseGuards(JwtAuthGuard)
@@ -36,12 +35,12 @@ export class BusinessController {
   }
 
   @Get('products')
-  getFullBusiness(@Headers(businessIdHeader) id: string) {
+  getFullBusiness(@BusinessIdHeader() id: string) {
     return this.businessService.getBusinessFullStructure(id);
   }
 
   @Get()
-  async getById(@Headers(businessIdHeader) id: string) {
+  async getById(@BusinessIdHeader() id: string) {
     return this.businessService.getById(id);
   }
 
@@ -49,7 +48,7 @@ export class BusinessController {
   @Roles(RolName.OWNER)
   @UseGuards(RolesGuard)
   updateBusiness(
-    @Headers(businessIdHeader) id: string,
+    @BusinessIdHeader() id: string,
     @Body() updateBusiness: UpdateBusinessDto,
   ) {
     return this.businessService.updateBusiness(id, updateBusiness);
@@ -80,7 +79,7 @@ export class BusinessController {
   @Delete()
   @Roles(RolName.OWNER)
   @UseGuards(RolesGuard)
-  delete(@Headers(businessIdHeader) id: string) {
+  delete(@BusinessIdHeader() id: string) {
     return this.businessService.deleteById(id);
   }
 }

@@ -16,8 +16,8 @@ import { RolName } from 'src/types/roles';
 import { CreateProductGroupDto } from './dto/create-product-group.dto';
 import { ProductGroupService } from './product-group.service';
 import { RolesGuard } from '../auth/roles.guard';
-import { businessIdHeader } from 'src/types/headers';
 import { UpdateProductGroupDto } from './dto/udpate-product-group,dto';
+import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 
 @Controller('product-group')
 @UseGuards(JwtAuthGuard)
@@ -27,12 +27,15 @@ export class ProductGroupController {
   @Post()
   @Roles(RolName.OWNER)
   @UseGuards(RolesGuard)
-  createProductGroup(@Body() createProductGroup: CreateProductGroupDto) {
-    return this.productGroupService.create(createProductGroup);
+  createProductGroup(
+    @BusinessIdHeader() id: string,
+    @Body() createProductGroup: CreateProductGroupDto,
+  ) {
+    return this.productGroupService.create(createProductGroup, id);
   }
 
   @Get()
-  getByBusinessId(@Headers(businessIdHeader) id: string) {
+  getByBusinessId(@BusinessIdHeader() id: string) {
     return this.productGroupService.getByBusinessId(id);
   }
 

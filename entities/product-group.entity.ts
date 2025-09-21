@@ -7,11 +7,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { Business } from './business.entity';
 import { Product } from './product.entity';
 
 @Entity('product_groups')
+@Unique(['name', 'business_id'])
 export class ProductGroup {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -25,13 +27,15 @@ export class ProductGroup {
   @JoinColumn({ name: 'business_id' })
   business: Business;
 
-  @Column({ unique: true })
+  @Column()
   name: string;
 
   @Column({ nullable: true })
   description: string;
 
-  @OneToMany(() => Product, (product) => product.productGroup)
+  @OneToMany(() => Product, (product) => product.productGroup, {
+    onDelete: 'CASCADE',
+  })
   products: Product[];
 
   @CreateDateColumn({ type: 'timestamp' })

@@ -16,9 +16,11 @@ export class ProductGroupService {
     private productGroupRepository: Repository<ProductGroup>,
   ) {}
 
-  async create(productGroupDto: CreateProductGroupDto) {
-    const productGroup =
-      await this.productGroupRepository.create(productGroupDto);
+  async create(productGroupDto: CreateProductGroupDto, businessId: string) {
+    const productGroup = await this.productGroupRepository.create({
+      business_id: businessId,
+      ...productGroupDto,
+    });
     try {
       return await this.productGroupRepository.save(productGroup);
     } catch (error) {
@@ -64,7 +66,14 @@ export class ProductGroupService {
 
     Object.assign(productGroup, updateDto);
 
-    return await this.productGroupRepository.save(productGroup);
+    try {
+      return await this.productGroupRepository.save(productGroup);
+    } catch (error) {
+      if (error.code === '23505')
+        // Postgres error code for unique violation
+        throw new ConflictException('Product group already exists');
+      throw error;
+    }
   }
 
   async deleteProductGroupById(id: string) {
@@ -76,8 +85,18 @@ export class ProductGroupService {
       throw new NotFoundException(`Product group with id ${id} not found`);
     }
 
-    await this.productGroupRepository.remove(productGroup);
-
-    return { message: `Product group with id ${id} deleted successfully` };
+    try {
+      await this.productGroupRepository.remove(productGroup);
+      return {
+        message: `Product group "${productGroup.name}" deleted successfully`,
+      };
+    } catch (error) {
+      if (error.code === '23503')
+        // Postgres error code for constrait
+        throw new ConflictException(
+          'Product group debe de estar vacío para poder eliminarlo',
+        );
+      throw error;
+    }
   }
 }

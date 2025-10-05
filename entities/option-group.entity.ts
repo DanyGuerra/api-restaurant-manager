@@ -17,6 +17,18 @@ export class OptionGroup {
   @Column()
   name: string; // Ej: Size, Type
 
+  @Column({ type: 'int', default: 0 })
+  min_options: number;
+
+  @Column({ type: 'int', default: 1 })
+  max_options: number;
+
+  @Column({ type: 'int', nullable: true })
+  display_order: number;
+
+  @Column({ type: 'boolean', default: true })
+  available: boolean;
+
   @OneToMany(() => ProductOption, (option) => option.group)
   options: ProductOption[];
 

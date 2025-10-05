@@ -64,6 +64,7 @@ export class BusinessService {
         'productGroup.products',
         'productGroup.products.option_groups',
         'productGroup.products.option_groups.options',
+        'productGroup.products.option_groups.product_option_groups',
       ],
     });
 

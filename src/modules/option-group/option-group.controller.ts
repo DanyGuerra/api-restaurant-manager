@@ -34,6 +34,11 @@ export class OptionGroupController {
     return this.optionGroupService.getById(id);
   }
 
+  @Get('business/:businessId')
+  getByBusinessId(@Param('businessId', new ParseUUIDPipe()) id: string) {
+    return this.optionGroupService.getByBusinessId(id);
+  }
+
   @Patch(':id')
   updateById(
     @Param('id', new ParseUUIDPipe()) id: string,

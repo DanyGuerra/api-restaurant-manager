@@ -22,6 +22,7 @@ export class OptionGroupService {
   async getById(id: string) {
     const optionGroup = await this.optionGroupRepository.findOne({
       where: { id },
+      relations: ['product_option_groups'],
     });
 
     if (!optionGroup) {
@@ -29,6 +30,17 @@ export class OptionGroupService {
     }
 
     return optionGroup;
+  }
+
+  async getByBusinessId(businessId: string) {
+    return await this.optionGroupRepository
+      .createQueryBuilder('og')
+      .innerJoin('ProductOptionGroup', 'pog', 'og.id = pog.option_group_id')
+      .innerJoin('Product', 'p', 'p.id = pog.product_id')
+      .innerJoin('ProductGroup', 'pg', 'pg.id = p.group_product_id')
+      .leftJoinAndSelect('og.options', 'o')
+      .where('pg.business_id = :businessId', { businessId })
+      .getMany();
   }
 
   async updateById(id: string, updateOptionGroup: UpdateOptionGroup) {

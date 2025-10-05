@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -22,6 +24,12 @@ export class ProductOptionGroupController {
   @Roles(RolName.OWNER)
   create(@Body() createProductOptionGroup: CreateProductOptionGroupDto) {
     return this.pogService.create(createProductOptionGroup);
+  }
+
+  @Delete()
+  @Roles(RolName.OWNER)
+  delete(@Query() createProductOptionGroup: CreateProductOptionGroupDto) {
+    return this.pogService.delete(createProductOptionGroup);
   }
 
   @Get(':id')

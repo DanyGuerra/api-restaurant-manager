@@ -18,6 +18,26 @@ export class ProductOptionGroupService {
     return await this.productOptionRepository.save(productOptionGroup);
   }
 
+  async delete(dto: CreateProductOptionGroupDto) {
+    const productOptionGroup = await this.productOptionRepository.findOne({
+      where: {
+        product_id: dto.product_id,
+        option_group_id: dto.option_group_id,
+      },
+    });
+    if (!productOptionGroup) {
+      throw new NotFoundException(
+        `Product option group with id ${dto.option_group_id} not found`,
+      );
+    }
+
+    await this.productOptionRepository.remove(productOptionGroup);
+
+    return {
+      message: `Product option group with id ${dto.option_group_id} deleted successfully`,
+    };
+  }
+
   async getAllByProductId(productId: string) {
     const productOptionGroup = await this.productOptionRepository.find({
       where: { product_id: productId },

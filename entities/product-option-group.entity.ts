@@ -1,7 +1,8 @@
 import { OptionGroup } from 'entities/option-group.entity';
-import { Entity, ManyToOne, JoinColumn, PrimaryColumn } from 'typeorm';
+import { Entity, ManyToOne, JoinColumn, PrimaryColumn, Unique } from 'typeorm';
 import { Product } from './product.entity';
 
+@Unique(['product_id', 'option_group_id'])
 @Entity('product_option_groups')
 export class ProductOptionGroup {
   @PrimaryColumn('uuid')

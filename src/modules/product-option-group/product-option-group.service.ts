@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductOptionGroup } from 'entities/product-option-group.entity';
 import { Repository } from 'typeorm';
@@ -15,7 +19,17 @@ export class ProductOptionGroupService {
     const productOptionGroup = await this.productOptionRepository.create(
       createProductOptionGroup,
     );
-    return await this.productOptionRepository.save(productOptionGroup);
+
+    try {
+      return await this.productOptionRepository.save(productOptionGroup);
+    } catch (error) {
+      if (error.code === '23505')
+        // Postgres error code for unique violation
+        throw new ConflictException(
+          'Option group already exists for this product',
+        );
+      throw error;
+    }
   }
 
   async delete(dto: CreateProductOptionGroupDto) {

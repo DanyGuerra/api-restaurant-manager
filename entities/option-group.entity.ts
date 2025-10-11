@@ -5,9 +5,12 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ProductOption } from './product-option.entity';
 import { ProductOptionGroup } from './product-option-group.entity';
+import { Business } from './business.entity';
 
 @Entity('option_groups')
 export class OptionGroup {
@@ -16,6 +19,15 @@ export class OptionGroup {
 
   @Column()
   name: string; // Ej: Size, Type
+
+  @Column()
+  business_id: string;
+
+  @ManyToOne(() => Business, (business) => business.productGroup, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'business_id' })
+  business: Business;
 
   @Column({ type: 'int', default: 0 })
   min_options: number;

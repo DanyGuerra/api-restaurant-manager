@@ -16,6 +16,7 @@ import { Roles } from '../auth/roles.decorator';
 import { RolName } from 'src/types/roles';
 import { RolesGuard } from '../auth/roles.guard';
 import { UpdateOptionGroup } from './dto/update-option-group.dto';
+import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 
 @Controller('option-group')
 @UseGuards(JwtAuthGuard)
@@ -25,8 +26,11 @@ export class OptionGroupController {
   @Post()
   @Roles(RolName.OWNER)
   @UseGuards(RolesGuard)
-  create(@Body() createOptionGroup: CreateOptionGroup) {
-    return this.optionGroupService.create(createOptionGroup);
+  create(
+    @BusinessIdHeader() businessId: string,
+    @Body() createOptionGroup: CreateOptionGroup,
+  ) {
+    return this.optionGroupService.create(createOptionGroup, businessId);
   }
 
   @Get(':id')

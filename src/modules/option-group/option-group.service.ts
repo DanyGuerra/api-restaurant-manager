@@ -12,9 +12,11 @@ export class OptionGroupService {
     private optionGroupRepository: Repository<OptionGroup>,
   ) {}
 
-  async create(createOptionGroup: CreateOptionGroup) {
-    const optionGroup =
-      await this.optionGroupRepository.create(createOptionGroup);
+  async create(createOptionGroup: CreateOptionGroup, businessId: string) {
+    const optionGroup = await this.optionGroupRepository.create({
+      ...createOptionGroup,
+      business_id: businessId,
+    });
 
     return await this.optionGroupRepository.save(optionGroup);
   }
@@ -33,14 +35,11 @@ export class OptionGroupService {
   }
 
   async getByBusinessId(businessId: string) {
-    return await this.optionGroupRepository
-      .createQueryBuilder('og')
-      .innerJoin('ProductOptionGroup', 'pog', 'og.id = pog.option_group_id')
-      .innerJoin('Product', 'p', 'p.id = pog.product_id')
-      .innerJoin('ProductGroup', 'pg', 'pg.id = p.group_product_id')
-      .leftJoinAndSelect('og.options', 'o')
-      .where('pg.business_id = :businessId', { businessId })
-      .getMany();
+    const optionGroups = await this.optionGroupRepository.find({
+      where: { business_id: businessId },
+    });
+
+    return optionGroups;
   }
 
   async updateById(id: string, updateOptionGroup: UpdateOptionGroup) {

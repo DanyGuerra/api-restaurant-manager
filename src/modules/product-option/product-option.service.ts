@@ -1,8 +1,13 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ProductOption } from 'entities/product-option.entity';
 import { CreateProductOptionDto } from './dto/create-product-option.dto';
+import { UpdateProductOptionDto } from './dto/update-product-option.dto';
 
 @Injectable()
 export class ProductOptionService {
@@ -22,5 +27,38 @@ export class ProductOptionService {
       }
       throw error;
     }
+  }
+
+  async update(
+    updateOptionDto: UpdateProductOptionDto,
+    productOptionId: string,
+  ) {
+    const productOption = await this.productOptionRepository.findOne({
+      where: { id: productOptionId },
+    });
+
+    if (!productOption) {
+      throw new NotFoundException(
+        `Option with id ${productOptionId} not found`,
+      );
+    }
+
+    Object.assign(productOption, updateOptionDto);
+
+    return await this.productOptionRepository.save(productOption);
+  }
+
+  async delete(productOptionId: string) {
+    const productOption = await this.productOptionRepository.findOne({
+      where: { id: productOptionId },
+    });
+
+    if (!productOption) {
+      throw new NotFoundException(
+        `Option with id ${productOptionId} not found`,
+      );
+    }
+
+    return await this.productOptionRepository.remove(productOption);
   }
 }

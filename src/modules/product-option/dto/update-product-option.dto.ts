@@ -8,17 +8,16 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class CreateProductOptionDto {
-  @IsUUID()
-  option_group_id: string;
-
+export class UpdateProductOptionDto {
+  @IsOptional()
   @IsString()
-  name: string; // Example: Large, Medium, Small
+  name?: string;
 
+  @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
   @Type(() => Number)
   @Min(0)
-  price: number;
+  price?: number;
 
   @IsOptional()
   @IsBoolean()

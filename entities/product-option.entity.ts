@@ -6,9 +6,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { OptionGroup } from './option-group.entity';
 
+@Unique(['option_group_id', 'name'])
 @Entity('product-options')
 export class ProductOption {
   @PrimaryGeneratedColumn('uuid')

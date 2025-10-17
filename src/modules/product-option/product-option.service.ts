@@ -1,5 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ProductOption } from 'entities/product-option.entity';
 import { CreateProductOptionDto } from './dto/create-product-option.dto';
@@ -12,8 +12,15 @@ export class ProductOptionService {
   ) {}
 
   async create(productOptionDto: CreateProductOptionDto) {
-    const productOption =
-      await this.productOptionRepository.create(productOptionDto);
-    return this.productOptionRepository.save(productOption);
+    try {
+      const productOption =
+        await this.productOptionRepository.create(productOptionDto);
+      return await this.productOptionRepository.save(productOption);
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new ConflictException('This option name is already taken');
+      }
+      throw error;
+    }
   }
 }

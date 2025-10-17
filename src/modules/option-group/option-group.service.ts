@@ -37,6 +37,7 @@ export class OptionGroupService {
   async getByBusinessId(businessId: string) {
     const optionGroups = await this.optionGroupRepository.find({
       where: { business_id: businessId },
+      relations: ['options'],
     });
 
     return optionGroups;

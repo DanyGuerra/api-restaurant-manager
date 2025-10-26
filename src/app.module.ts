@@ -23,6 +23,10 @@ import { ProductOptionGroupModule } from './modules/product-option-group/product
 import { ProductOptionGroupService } from './modules/product-option-group/product-option-group.service';
 import { ProductOptionGroup } from 'entities/product-option-group.entity';
 import { ProductOptionModule } from './modules/product-option/product-option.module';
+import { Order } from 'entities/order.entity';
+import { OrderItem } from 'entities/order-item.entity';
+import { OrderItemOption } from 'entities/order-item-option.entity';
+import { OrderItemGroup } from 'entities/order-item-group.entity';
 
 @Module({
   controllers: [AppController, HelpController, ProductOptionGroupController],
@@ -36,6 +40,10 @@ import { ProductOptionModule } from './modules/product-option/product-option.mod
       OptionGroup,
       ProductOption,
       ProductOptionGroup,
+      Order,
+      OrderItem,
+      OrderItemOption,
+      OrderItemGroup,
     ]),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({

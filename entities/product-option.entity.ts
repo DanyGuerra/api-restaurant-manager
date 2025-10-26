@@ -19,7 +19,9 @@ export class ProductOption {
   @Column()
   option_group_id: string;
 
-  @ManyToOne(() => OptionGroup, (group) => group.options)
+  @ManyToOne(() => OptionGroup, (group) => group.options, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'option_group_id' })
   group: OptionGroup;
 

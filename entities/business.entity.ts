@@ -11,6 +11,7 @@ import {
 import { User } from './user.entity';
 import { ProductGroup } from './product-group.entity';
 import { Exclude } from 'class-transformer';
+import { OptionGroup } from './option-group.entity';
 
 @Entity('business')
 @Unique(['name', 'owner_id'])
@@ -41,4 +42,9 @@ export class Business {
 
   @OneToMany(() => ProductGroup, (productGroup) => productGroup.business)
   productGroup: ProductGroup[];
+
+  @OneToMany(() => OptionGroup, (optionGroup) => optionGroup.business, {
+    cascade: true,
+  })
+  optionGroups: OptionGroup[];
 }

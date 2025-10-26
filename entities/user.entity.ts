@@ -9,6 +9,7 @@ import {
 import { UserBusinessRole } from './user-business-role.entity';
 import { Business } from './business.entity';
 import { Exclude } from 'class-transformer';
+import { Order } from './order.entity';
 
 @Entity('users')
 export class User {
@@ -38,9 +39,12 @@ export class User {
   @UpdateDateColumn({ nullable: true })
   updated_at: Date;
 
-  @OneToMany(() => Business, (business) => business.owner_id)
+  @OneToMany(() => Business, (business) => business.owner)
   ownedBusinesses: Business[];
 
   @OneToMany(() => UserBusinessRole, (ur) => ur.user)
   businessRoles: UserBusinessRole[];
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }

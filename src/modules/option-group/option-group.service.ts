@@ -15,7 +15,7 @@ export class OptionGroupService {
   async create(createOptionGroup: CreateOptionGroup, businessId: string) {
     const optionGroup = await this.optionGroupRepository.create({
       ...createOptionGroup,
-      business_id: businessId,
+      business: { id: businessId },
     });
 
     return await this.optionGroupRepository.save(optionGroup);
@@ -36,7 +36,7 @@ export class OptionGroupService {
 
   async getByBusinessId(businessId: string) {
     const optionGroups = await this.optionGroupRepository.find({
-      where: { business_id: businessId },
+      where: { business: { id: businessId } },
       relations: ['options'],
     });
 

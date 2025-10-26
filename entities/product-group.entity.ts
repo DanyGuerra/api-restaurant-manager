@@ -7,19 +7,16 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
-  Unique,
+  Index,
 } from 'typeorm';
 import { Business } from './business.entity';
 import { Product } from './product.entity';
 
 @Entity('product_groups')
-@Unique(['name', 'business_id'])
+@Index(['name', 'business'], { unique: true })
 export class ProductGroup {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @Column()
-  business_id: string;
 
   @ManyToOne(() => Business, (business) => business.productGroup, {
     onDelete: 'CASCADE',

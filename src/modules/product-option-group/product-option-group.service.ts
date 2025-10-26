@@ -15,10 +15,11 @@ export class ProductOptionGroupService {
     private productOptionRepository: Repository<ProductOptionGroup>,
   ) {}
 
-  async create(createProductOptionGroup: CreateProductOptionGroupDto) {
-    const productOptionGroup = await this.productOptionRepository.create(
-      createProductOptionGroup,
-    );
+  async create(createPOG: CreateProductOptionGroupDto) {
+    const productOptionGroup = await this.productOptionRepository.create({
+      product: { id: createPOG.product_id },
+      option_group: { id: createPOG.option_group_id },
+    });
 
     try {
       return await this.productOptionRepository.save(productOptionGroup);
@@ -35,8 +36,8 @@ export class ProductOptionGroupService {
   async delete(dto: CreateProductOptionGroupDto) {
     const productOptionGroup = await this.productOptionRepository.findOne({
       where: {
-        product_id: dto.product_id,
-        option_group_id: dto.option_group_id,
+        product: { id: dto.product_id },
+        option_group: { id: dto.option_group_id },
       },
     });
     if (!productOptionGroup) {
@@ -54,7 +55,7 @@ export class ProductOptionGroupService {
 
   async getAllByProductId(productId: string) {
     const productOptionGroup = await this.productOptionRepository.find({
-      where: { product_id: productId },
+      where: { product: { id: productId } },
       relations: ['product', 'option_group', 'option_group.options'],
     });
 

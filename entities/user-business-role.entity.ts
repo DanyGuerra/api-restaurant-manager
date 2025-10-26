@@ -1,4 +1,12 @@
-import { Entity, PrimaryColumn, ManyToOne, JoinColumn, Unique } from 'typeorm';
+import {
+  Entity,
+  PrimaryColumn,
+  ManyToOne,
+  JoinColumn,
+  Unique,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from './user.entity';
 import { Business } from './business.entity';
 import { Role } from './role.entity';
@@ -14,6 +22,12 @@ export class UserBusinessRole {
 
   @PrimaryColumn('int')
   role_id: number;
+
+  @CreateDateColumn({ type: 'timestamp' })
+  created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', nullable: true })
+  updated_at: Date;
 
   @ManyToOne(() => User, (user) => user.businessRoles, {
     onDelete: 'CASCADE',

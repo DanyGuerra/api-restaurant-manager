@@ -6,15 +6,18 @@ import {
   OneToMany,
   ManyToOne,
   JoinColumn,
-  Unique,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Index,
 } from 'typeorm';
 import { User } from './user.entity';
 import { ProductGroup } from './product-group.entity';
 import { Exclude } from 'class-transformer';
 import { OptionGroup } from './option-group.entity';
+import { Order } from './order.entity';
 
 @Entity('business')
-@Unique(['name', 'owner_id'])
+@Index(['name', 'owner'], { unique: true })
 export class Business {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -25,9 +28,11 @@ export class Business {
   @Column({ nullable: true })
   address: string;
 
-  @Exclude()
-  @Column({ nullable: true })
-  owner_id: string;
+  @CreateDateColumn({ type: 'timestamp' })
+  created_at: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', nullable: true })
+  updated_at: Date;
 
   @Exclude()
   @ManyToOne(() => User, (user) => user.ownedBusinesses, {
@@ -47,4 +52,7 @@ export class Business {
     cascade: true,
   })
   optionGroups: OptionGroup[];
+
+  @OneToMany(() => Order, (order) => order.business)
+  orders: Order[];
 }

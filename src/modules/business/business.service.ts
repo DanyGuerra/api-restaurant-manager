@@ -23,7 +23,7 @@ export class BusinessService {
   ): Promise<Business> {
     const business = this.businessRepository.create({
       ...dto,
-      owner_id: userId,
+      owner: { id: userId },
     });
 
     try {
@@ -86,7 +86,7 @@ export class BusinessService {
 
   async getByOwnerId(ownerId: string) {
     const business = await this.businessRepository.find({
-      where: { owner_id: ownerId },
+      where: { owner: { id: ownerId } },
     });
     if (!business) {
       throw new NotFoundException(`Business not found`);

@@ -7,8 +7,10 @@ import {
   UpdateDateColumn,
   JoinColumn,
   Unique,
+  OneToMany,
 } from 'typeorm';
 import { OptionGroup } from './option-group.entity';
+import { OrderItemOption } from './order-item-option.entity';
 
 @Unique(['option_group_id', 'name'])
 @Entity('product-options')
@@ -46,4 +48,10 @@ export class ProductOption {
 
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updated_at: Date;
+
+  @OneToMany(
+    () => OrderItemOption,
+    (orderItemOption) => orderItemOption.productOption,
+  )
+  orderItemOptions: OrderItemOption[];
 }

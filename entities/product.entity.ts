@@ -8,9 +8,11 @@ import {
   JoinTable,
   ManyToMany,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { ProductGroup } from './product-group.entity';
 import { OptionGroup } from './option-group.entity';
+import { OrderItem } from './order-item.entity';
 
 @Entity('products')
 export class Product {
@@ -56,4 +58,7 @@ export class Product {
 
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updated_at: Date;
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
+  orderItems: OrderItem[];
 }

@@ -20,9 +20,6 @@ export class OptionGroup {
   @Column()
   name: string; // Ej: Size, Type
 
-  @Column()
-  business_id: string;
-
   @ManyToOne(() => Business, (business) => business.productGroup, {
     onDelete: 'CASCADE',
   })

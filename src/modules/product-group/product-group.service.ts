@@ -17,15 +17,16 @@ export class ProductGroupService {
   ) {}
 
   async create(productGroupDto: CreateProductGroupDto, businessId: string) {
-    const productGroup = await this.productGroupRepository.create({
-      business_id: businessId,
+    const productGroup = this.productGroupRepository.create({
       ...productGroupDto,
+      business: { id: businessId }, // <- asigna la relación, no la columna
     });
+
     try {
       return await this.productGroupRepository.save(productGroup);
     } catch (error) {
       if (error.code === '23505')
-        // Postgres error code for unique violation
+        // unique violation
         throw new ConflictException('Product group already exists');
       throw error;
     }
@@ -33,7 +34,7 @@ export class ProductGroupService {
 
   async getByBusinessId(id: string) {
     const productGroups = await this.productGroupRepository.find({
-      where: { business_id: id },
+      where: { business: { id } },
     });
 
     if (productGroups.length === 0) {
@@ -94,7 +95,7 @@ export class ProductGroupService {
       if (error.code === '23503')
         // Postgres error code for constrait
         throw new ConflictException(
-          'Product group must be empty before being deleted.',
+          'Product group debe de estar vacío para poder eliminarlo',
         );
       throw error;
     }

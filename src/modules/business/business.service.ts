@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -94,10 +95,27 @@ export class BusinessService {
   }
 
   async deleteById(id: string) {
-    const business = await this.businessRepository.delete({ id });
+    const business = await this.businessRepository.findOne({ where: { id } });
+
     if (!business) {
       throw new NotFoundException(`Business not found`);
     }
-    return business;
+
+    try {
+      await this.businessRepository.remove(business);
+
+      return { message: `Business with id ${id} deleted successfully` };
+    } catch (error) {
+      if (error.code === '23503') {
+        // Foreign key violation
+        throw new ConflictException(
+          `Cannot delete business because it still has related data (e.g., products, options, or users).`,
+        );
+      }
+
+      throw new InternalServerErrorException(
+        'Unexpected error while deleting business',
+      );
+    }
   }
 }

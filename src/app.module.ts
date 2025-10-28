@@ -27,6 +27,8 @@ import { Order } from 'entities/order.entity';
 import { OrderItem } from 'entities/order-item.entity';
 import { OrderItemOption } from 'entities/order-item-option.entity';
 import { OrderItemGroup } from 'entities/order-item-group.entity';
+import { Label } from 'entities/label.entity';
+import { OrderLabel } from 'entities/order-label.entity';
 
 @Module({
   controllers: [AppController, HelpController, ProductOptionGroupController],
@@ -44,6 +46,8 @@ import { OrderItemGroup } from 'entities/order-item-group.entity';
       OrderItem,
       OrderItemOption,
       OrderItemGroup,
+      Label,
+      OrderLabel,
     ]),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({

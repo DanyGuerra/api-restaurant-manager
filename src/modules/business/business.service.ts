@@ -61,11 +61,11 @@ export class BusinessService {
     const business = await this.businessRepository.findOne({
       where: { id: businessId },
       relations: [
-        'productGroup',
-        'productGroup.products',
-        'productGroup.products.option_groups',
-        'productGroup.products.option_groups.options',
-        'productGroup.products.option_groups.product_option_groups',
+        'product_group',
+        'product_group.products',
+        'product_group.products.option_groups',
+        'product_group.products.option_groups.options',
+        'product_group.products.option_groups.product_option_groups',
       ],
     });
 

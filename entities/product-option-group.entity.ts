@@ -1,13 +1,5 @@
 import { OptionGroup } from 'entities/option-group.entity';
-import {
-  Entity,
-  ManyToOne,
-  JoinColumn,
-  PrimaryColumn,
-  Unique,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, ManyToOne, JoinColumn, PrimaryColumn, Unique } from 'typeorm';
 import { Product } from './product.entity';
 
 @Unique(['product_id', 'option_group_id'])
@@ -19,17 +11,11 @@ export class ProductOptionGroup {
   @PrimaryColumn('uuid')
   option_group_id: string;
 
-  @ManyToOne(() => Product, (product) => product.productGroup, {
+  @ManyToOne(() => Product, (product) => product.product_group, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'product_id' })
   product: Product;
-
-  @CreateDateColumn({ type: 'timestamp' })
-  created_at: Date;
-
-  @UpdateDateColumn({ type: 'timestamp', nullable: true })
-  updated_at: Date;
 
   @ManyToOne(
     () => OptionGroup,

@@ -46,12 +46,12 @@ export class Business {
   userRoles: UserBusinessRole[];
 
   @OneToMany(() => ProductGroup, (productGroup) => productGroup.business)
-  productGroup: ProductGroup[];
+  product_group: ProductGroup[];
 
   @OneToMany(() => OptionGroup, (optionGroup) => optionGroup.business, {
     cascade: true,
   })
-  optionGroups: OptionGroup[];
+  option_groups: OptionGroup[];
 
   @OneToMany(() => Order, (order) => order.business)
   orders: Order[];

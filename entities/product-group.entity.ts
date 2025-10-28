@@ -18,7 +18,7 @@ export class ProductGroup {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Business, (business) => business.productGroup, {
+  @ManyToOne(() => Business, (business) => business.product_group, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'business_id' })
@@ -30,7 +30,7 @@ export class ProductGroup {
   @Column({ nullable: true })
   description: string;
 
-  @OneToMany(() => Product, (product) => product.productGroup, {
+  @OneToMany(() => Product, (product) => product.product_group, {
     onDelete: 'CASCADE',
   })
   products: Product[];

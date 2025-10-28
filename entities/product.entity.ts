@@ -19,12 +19,9 @@ export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  group_product_id: string;
-
   @ManyToOne(() => ProductGroup, (productGroup) => productGroup.products)
   @JoinColumn({ name: 'group_product_id' })
-  productGroup: ProductGroup;
+  product_group: ProductGroup;
 
   @Column()
   name: string;

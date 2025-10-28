@@ -12,9 +12,14 @@ export class ProductsService {
     private productRepository: Repository<Product>,
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto[]) {
-    const product = await this.productRepository.create(createProductDto);
-    return this.productRepository.save(product);
+  async createProduct(createProductsDto: CreateProductDto[]) {
+    const products = createProductsDto.map((dto) =>
+      this.productRepository.create({
+        ...dto,
+        product_group: { id: dto.group_product_id },
+      }),
+    );
+    return this.productRepository.save(products);
   }
 
   async updateProductById(id: string, updateDto: UpdateProductDto) {
@@ -45,7 +50,7 @@ export class ProductsService {
 
   async getByProductGroupId(productGroupId: string) {
     const product = await this.productRepository.find({
-      where: { group_product_id: productGroupId },
+      where: { product_group: { id: productGroupId } },
     });
 
     if (!product) {

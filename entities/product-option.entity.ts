@@ -13,12 +13,12 @@ import { OptionGroup } from './option-group.entity';
 import { OrderItemOption } from './order-item-option.entity';
 
 @Unique(['option_group_id', 'name'])
-@Entity('product-options')
+@Entity('product_options')
 export class ProductOption {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
+  @Column('uuid')
   option_group_id: string;
 
   @ManyToOne(() => OptionGroup, (group) => group.options, {

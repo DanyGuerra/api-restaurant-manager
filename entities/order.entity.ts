@@ -10,8 +10,8 @@ import {
 } from 'typeorm';
 import { Business } from './business.entity';
 import { User } from './user.entity';
-import { OrderItem } from './order-item.entity';
 import { OrderItemGroup } from './order-item-group.entity';
+import { OrderLabel } from './order-label.entity';
 
 @Entity('orders')
 export class Order {
@@ -54,9 +54,9 @@ export class Order {
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updated_at: Date;
 
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
-  items: OrderItem[];
-
   @OneToMany(() => OrderItemGroup, (group) => group.order, { cascade: true })
   itemGroups: OrderItemGroup[];
+
+  @OneToMany(() => OrderLabel, (ol) => ol.order, { cascade: true })
+  orderLabels?: OrderLabel[];
 }

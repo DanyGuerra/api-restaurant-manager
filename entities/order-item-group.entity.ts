@@ -19,7 +19,7 @@ export class OrderItemGroup {
   order: Order;
 
   @Column({ type: 'varchar', nullable: true })
-  name: string; // Ej: "Caja 1", "Para entrega tardía", etc.
+  name: string;
 
   @OneToMany(() => OrderItem, (item) => item.group, { cascade: true })
   items: OrderItem[];

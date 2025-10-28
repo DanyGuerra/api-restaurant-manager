@@ -6,19 +6,16 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Product } from './product.entity';
 import { OrderItemOption } from './order-item-option.entity';
-import { Order } from './order.entity';
 import { OrderItemGroup } from './order-item-group.entity';
 
 @Entity('order_items')
 export class OrderItem {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
-  @ManyToOne(() => Order, (order) => order.items, { nullable: false })
-  order: Order;
 
   @ManyToOne(() => Product, (product) => product.orderItems, {
     nullable: false,
@@ -42,6 +39,10 @@ export class OrderItem {
   })
   options: OrderItemOption[];
 
-  @ManyToOne(() => OrderItemGroup, (group) => group.items, { nullable: true })
+  @ManyToOne(() => OrderItemGroup, (group) => group.items, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'order_item_group_id' })
   group: OrderItemGroup;
 }

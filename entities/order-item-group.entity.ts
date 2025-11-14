@@ -21,6 +21,9 @@ export class OrderItemGroup {
   @Column({ type: 'varchar', nullable: true })
   name: string;
 
+  @Column('decimal', { precision: 10, scale: 2, default: 0.0 })
+  subtotal: number;
+
   @OneToMany(() => OrderItem, (item) => item.group, { cascade: true })
   items: OrderItem[];
 

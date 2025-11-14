@@ -30,6 +30,13 @@ export class Order {
   @Column('decimal', { precision: 10, scale: 2, default: 0.0 })
   total: number;
 
+  @Column('decimal', { precision: 10, scale: 2, default: null })
+  amount_paid: number;
+
+  @Column('decimal', { precision: 10, scale: 2, default: null })
+  change: number;
+
+  // [pending, preparing, ready, completed]
   @Column({ type: 'varchar', default: 'pending' })
   status: string;
 

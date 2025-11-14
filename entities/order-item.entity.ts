@@ -25,6 +25,9 @@ export class OrderItem {
   @Column({ type: 'int', default: 1 })
   quantity: number;
 
+  @Column({ type: 'boolean', default: false, nullable: false })
+  is_ready: boolean;
+
   @Column('decimal', { precision: 10, scale: 2, default: 0.0 })
   item_total: number;
 

@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OptionGroup } from 'entities/option-group.entity';
 import { Repository } from 'typeorm';
@@ -66,8 +71,20 @@ export class OptionGroupService {
       throw new NotFoundException(`Option group with id ${id} not found`);
     }
 
-    await this.optionGroupRepository.remove(optionGroup);
+    try {
+      await this.optionGroupRepository.remove(optionGroup);
+      return { message: `Option group with id ${id} deleted successfully` };
+    } catch (error) {
+      if (error.code === '23503') {
+        // Foreign key violation
+        throw new ConflictException(
+          `Cannot delete option group because it still has related data.`,
+        );
+      }
 
-    return { message: `Option group with id ${id} deleted successfully` };
+      throw new InternalServerErrorException(
+        'Unexpected error while deleting business',
+      );
+    }
   }
 }

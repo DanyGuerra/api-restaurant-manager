@@ -21,7 +21,7 @@ export class ProductOptionGroup {
     () => OptionGroup,
     (optionGroup) => optionGroup.product_option_groups,
     {
-      onDelete: 'CASCADE',
+      onDelete: 'RESTRICT',
     },
   )
   @JoinColumn({ name: 'option_group_id' })

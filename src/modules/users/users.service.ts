@@ -9,7 +9,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async findByEmail(email: string): Promise<User | null> {
     return await this.usersRepository.findOne({ where: { email } });
@@ -54,6 +54,12 @@ export class UsersService {
     user.password = hashedPassword;
 
     await this.usersRepository.save(user);
+  }
+
+  async update(id: string, attrs: Partial<User>) {
+    const user = await this.findById(id);
+    Object.assign(user, attrs);
+    return this.usersRepository.save(user);
   }
 
   saveUser(user: User) {

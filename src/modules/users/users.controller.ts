@@ -35,7 +35,7 @@ export class UsersController {
     return instanceToPlain(user);
   }
 
-  @Patch('')
+  @Patch('update')
   async updateUser(
     @Body() updateUserDto: UpdateUserDto,
     @Req() req: RequestWithUser,

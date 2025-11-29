@@ -7,24 +7,28 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Business } from './business.entity';
 import { User } from './user.entity';
 import { OrderItemGroup } from './order-item-group.entity';
 import { OrderLabel } from './order-label.entity';
+import { ConsumptionType, OrderStatus } from 'src/types/order';
 
 @Entity('orders')
 export class Order {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
   customer_name: string;
 
   @ManyToOne(() => Business, (business) => business.orders, { nullable: false })
+  @JoinColumn({ name: 'business_id' })
   business: Business;
 
-  @ManyToOne(() => User, (user) => user.orders, { nullable: true })
+  @ManyToOne(() => User, (user) => user.orders)
+  @JoinColumn({ name: 'user_id' })
   user: User;
 
   @Column('decimal', { precision: 10, scale: 2, default: 0.0 })
@@ -36,9 +40,12 @@ export class Order {
   @Column('decimal', { precision: 10, scale: 2, default: null })
   change: number;
 
-  // [pending, preparing, ready, completed]
-  @Column({ type: 'varchar', default: 'pending' })
-  status: string;
+  @Column({
+    type: 'enum',
+    enum: OrderStatus,
+    default: OrderStatus.PENDING,
+  })
+  status: OrderStatus;
 
   @Column({ default: false })
   paid: boolean;
@@ -49,8 +56,12 @@ export class Order {
   @Column({ type: 'timestamp', nullable: true })
   scheduled_at: Date;
 
-  @Column({ type: 'varchar', default: 'dine_in' })
-  consumption_type: string;
+  @Column({
+    type: 'enum',
+    enum: ConsumptionType,
+    default: ConsumptionType.DINE_IN,
+  })
+  consumption_type: ConsumptionType;
 
   @Column({ type: 'varchar', nullable: true })
   notes: string;

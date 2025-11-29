@@ -23,6 +23,7 @@ import { ProductOptionGroupModule } from './modules/product-option-group/product
 import { ProductOptionGroupService } from './modules/product-option-group/product-option-group.service';
 import { ProductOptionGroup } from 'entities/product-option-group.entity';
 import { ProductOptionModule } from './modules/product-option/product-option.module';
+import { OrdersModule } from './modules/orders/orders.module';
 import { Order } from 'entities/order.entity';
 import { OrderItem } from 'entities/order-item.entity';
 import { OrderItemOption } from 'entities/order-item-option.entity';
@@ -70,7 +71,9 @@ import { OrderLabel } from 'entities/order-label.entity';
     ProductsModule,
     OptionGroupModule,
     ProductOptionGroupModule,
+    ProductOptionGroupModule,
     ProductOptionModule,
+    OrdersModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

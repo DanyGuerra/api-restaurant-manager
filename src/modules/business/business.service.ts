@@ -15,7 +15,7 @@ export class BusinessService {
   constructor(
     @InjectRepository(Business)
     private businessRepository: Repository<Business>,
-  ) {}
+  ) { }
 
   async createBusiness(
     dto: CreateBusinessDto,
@@ -46,7 +46,16 @@ export class BusinessService {
 
     const updatedBusiness = await this.businessRepository.merge(business, dto);
 
-    return await this.businessRepository.save(updatedBusiness);
+    try {
+      return await this.businessRepository.save(updatedBusiness);
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new ConflictException(
+          'This business name is already taken for this owner',
+        );
+      }
+      throw error;
+    }
   }
 
   async save(business: Business) {

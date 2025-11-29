@@ -20,7 +20,7 @@ import { RolesGuard } from '../auth/roles.guard';
 @Controller('products')
 @UseGuards(JwtAuthGuard)
 export class ProductsController {
-  constructor(private productService: ProductsService) {}
+  constructor(private productService: ProductsService) { }
 
   @Post()
   @Roles(RolName.OWNER)
@@ -47,6 +47,11 @@ export class ProductsController {
   @Get()
   getByProductId(@Body('id') id: string) {
     return this.productService.getByProductGroupId(id);
+  }
+
+  @Get('business/:id')
+  getProductsByBusinessId(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.productService.getProductsByBusinessId(id);
   }
 
   @Delete(':id')

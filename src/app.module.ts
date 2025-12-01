@@ -30,6 +30,7 @@ import { OrderItemOption } from 'entities/order-item-option.entity';
 import { OrderItemGroup } from 'entities/order-item-group.entity';
 import { Label } from 'entities/label.entity';
 import { OrderLabel } from 'entities/order-label.entity';
+import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-groups.module';
 
 @Module({
   controllers: [AppController, HelpController, ProductOptionGroupController],
@@ -74,6 +75,7 @@ import { OrderLabel } from 'entities/order-label.entity';
     ProductOptionGroupModule,
     ProductOptionModule,
     OrdersModule,
+    OrderItemGroupsModule,
   ],
 })
 export class AppModule { }

@@ -26,7 +26,7 @@ export class OrdersService {
     async findByBusinessId(businessId: string) {
         return await this.orderRepository.find({
             where: { business: { id: businessId } },
-            relations: ['business', 'user', 'itemGroups', 'orderLabels'],
+            relations: ['business', 'user', 'itemGroups', 'orderLabels', 'itemGroups.items'],
         });
     }
 

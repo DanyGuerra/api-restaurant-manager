@@ -14,6 +14,7 @@ import { User } from './user.entity';
 import { OrderItemGroup } from './order-item-group.entity';
 import { OrderLabel } from './order-label.entity';
 import { ConsumptionType, OrderStatus } from 'src/types/order';
+import { Exclude } from 'class-transformer';
 
 @Entity('orders')
 export class Order {
@@ -29,6 +30,7 @@ export class Order {
 
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'user_id' })
+  @Exclude()
   user: User;
 
   @Column('decimal', { precision: 10, scale: 2, default: 0.0 })

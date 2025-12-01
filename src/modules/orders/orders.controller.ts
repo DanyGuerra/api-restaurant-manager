@@ -16,8 +16,8 @@ export class OrdersController {
         return this.ordersService.create(createOrderDto, userId, businessId);
     }
 
-    @Get('business/:businessId')
-    findByBusinessId(@Param('businessId', new ParseUUIDPipe()) businessId: string) {
+    @Get('business')
+    findByBusinessId(@BusinessIdHeader() businessId: string) {
         return this.ordersService.findByBusinessId(businessId);
     }
 

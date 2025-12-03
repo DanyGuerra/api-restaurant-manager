@@ -1,13 +1,14 @@
-import { IsNotEmpty, IsString, IsUUID, IsOptional, IsNumber } from 'class-validator';
+import {
+    IsNotEmpty,
+    IsString,
+    IsUUID,
+    IsOptional,
+} from 'class-validator';
 
 export class CreateOrderItemGroupDto {
     @IsString()
     @IsOptional()
     name?: string;
-
-    @IsNumber()
-    @IsOptional()
-    subtotal?: number;
 
     @IsUUID()
     @IsNotEmpty()

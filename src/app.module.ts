@@ -27,6 +27,7 @@ import { OrdersModule } from './modules/orders/orders.module';
 import { Order } from 'entities/order.entity';
 import { OrderItem } from 'entities/order-item.entity';
 import { OrderItemOption } from 'entities/order-item-option.entity';
+import { OrderItemOptionsModule } from './modules/order-item-options/order-item-options.module';
 import { OrderItemGroup } from 'entities/order-item-group.entity';
 import { OrderItemsModule } from './modules/order-items/order-items.module';
 import { Label } from 'entities/label.entity';
@@ -78,6 +79,7 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
     OrdersModule,
     OrderItemGroupsModule,
     OrderItemsModule,
+    OrderItemOptionsModule,
   ],
 })
 export class AppModule { }

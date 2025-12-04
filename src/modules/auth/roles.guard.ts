@@ -17,7 +17,7 @@ export class RolesGuard implements CanActivate {
     private reflector: Reflector,
     @InjectRepository(UserBusinessRole)
     private readonly ubrRepo: Repository<UserBusinessRole>,
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.getAllAndOverride<RolName[]>(
@@ -46,7 +46,7 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('You do not have a role in this business');
     }
 
-    // Validar si el rol del usuario está en los permitidos
+    // Role validation
     const hasRole = requiredRoles.includes(relation.role.name as RolName);
     if (!hasRole) {
       throw new ForbiddenException(

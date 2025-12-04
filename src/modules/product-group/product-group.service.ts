@@ -14,12 +14,12 @@ export class ProductGroupService {
   constructor(
     @InjectRepository(ProductGroup)
     private productGroupRepository: Repository<ProductGroup>,
-  ) {}
+  ) { }
 
   async create(productGroupDto: CreateProductGroupDto, businessId: string) {
     const productGroup = this.productGroupRepository.create({
       ...productGroupDto,
-      business: { id: businessId }, // <- asigna la relación, no la columna
+      business: { id: businessId },
     });
 
     try {

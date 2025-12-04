@@ -72,6 +72,7 @@ export class BusinessService {
       relations: [
         'product_group',
         'product_group.products',
+        'product_group.products.product_group',
         'product_group.products.option_groups',
         'product_group.products.option_groups.options',
         'product_group.products.option_groups.product_option_groups',

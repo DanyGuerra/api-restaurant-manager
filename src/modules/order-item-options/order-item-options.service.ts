@@ -15,8 +15,8 @@ export class OrderItemOptionsService {
     async create(createOrderItemOptionDto: CreateOrderItemOptionDto) {
         const option = this.orderItemOptionRepository.create({
             ...createOrderItemOptionDto,
-            orderItem: { id: createOrderItemOptionDto.orderItemId },
-            productOption: { id: createOrderItemOptionDto.productOptionId },
+            orderItem: { id: createOrderItemOptionDto.order_item_id },
+            productOption: { id: createOrderItemOptionDto.product_option_id },
         });
         return await this.orderItemOptionRepository.save(option);
     }

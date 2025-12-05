@@ -1,15 +1,15 @@
-import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsUUID } from 'class-validator';
 
 export class CreateOrderItemOptionDto {
-    @IsUUID()
-    @IsNotEmpty()
-    orderItemId: string;
+  @IsUUID()
+  @IsNotEmpty()
+  order_item_id: string;
 
-    @IsUUID()
-    @IsNotEmpty()
-    productOptionId: string;
+  @IsUUID()
+  @IsNotEmpty()
+  product_option_id: string;
 
-    @IsNumber()
-    @IsNotEmpty()
-    price: number;
+  @IsNumber()
+  @IsOptional()
+  price?: number;
 }

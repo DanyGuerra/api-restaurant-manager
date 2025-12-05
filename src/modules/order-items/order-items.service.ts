@@ -15,8 +15,8 @@ export class OrderItemsService {
     async create(createOrderItemDto: CreateOrderItemDto) {
         const item = this.orderItemRepository.create({
             ...createOrderItemDto,
-            product: { id: createOrderItemDto.productId },
-            group: createOrderItemDto.orderItemGroupId ? { id: createOrderItemDto.orderItemGroupId } : undefined,
+            product: { id: createOrderItemDto.product_id },
+            group: createOrderItemDto.order_item_group_id ? { id: createOrderItemDto.order_item_group_id } : undefined,
         });
         return await this.orderItemRepository.save(item);
     }

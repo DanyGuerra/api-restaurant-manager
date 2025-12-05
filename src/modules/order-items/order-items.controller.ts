@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { OrderItemsService } from './order-items.service';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { UpdateOrderItemDto } from './dto/update-order-item.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('order-items')
+@UseGuards(JwtAuthGuard)
 export class OrderItemsController {
     constructor(private readonly orderItemsService: OrderItemsService) { }
 

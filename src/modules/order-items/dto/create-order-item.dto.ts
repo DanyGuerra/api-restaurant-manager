@@ -3,11 +3,11 @@ import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsUUID } from 'class-valid
 export class CreateOrderItemDto {
     @IsUUID()
     @IsNotEmpty()
-    productId: string;
+    product_id: string;
 
     @IsUUID()
     @IsNotEmpty()
-    orderItemGroupId: string;
+    order_item_group_id: string;
 
     @IsNumber()
     @IsNotEmpty()

@@ -9,6 +9,7 @@ import {
   ManyToMany,
   JoinColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { ProductGroup } from './product-group.entity';
 import { OptionGroup } from './option-group.entity';
@@ -58,4 +59,7 @@ export class Product {
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.product)
   orderItems: OrderItem[];
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 }

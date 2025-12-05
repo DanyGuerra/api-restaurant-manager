@@ -86,7 +86,7 @@ export class ProductsService {
       throw new NotFoundException(`Product with id ${id} not found`);
     }
 
-    await this.productRepository.remove(product);
+    await this.productRepository.softRemove(product);
 
     return { message: `Product with id ${id} deleted successfully` };
   }

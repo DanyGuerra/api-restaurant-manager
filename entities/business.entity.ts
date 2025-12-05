@@ -9,6 +9,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Index,
+  DeleteDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { ProductGroup } from './product-group.entity';
@@ -55,4 +56,7 @@ export class Business {
 
   @OneToMany(() => Order, (order) => order.business)
   orders: Order[];
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 }

@@ -8,6 +8,7 @@ import {
   UpdateDateColumn,
   Index,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Business } from './business.entity';
 import { OrderLabel } from './order-label.entity';
@@ -36,4 +37,7 @@ export class Label {
 
   @OneToMany(() => OrderLabel, (orderLabel) => orderLabel.label)
   orderLabels?: OrderLabel[];
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 }

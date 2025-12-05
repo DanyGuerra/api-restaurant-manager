@@ -8,6 +8,7 @@ import {
   JoinColumn,
   Unique,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { OptionGroup } from './option-group.entity';
 import { OrderItemOption } from './order-item-option.entity';
@@ -54,4 +55,7 @@ export class ProductOption {
     (orderItemOption) => orderItemOption.productOption,
   )
   orderItemOptions: OrderItemOption[];
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 }

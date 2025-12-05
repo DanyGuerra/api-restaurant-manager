@@ -14,7 +14,7 @@ export class ProductOptionService {
   constructor(
     @InjectRepository(ProductOption)
     private productOptionRepository: Repository<ProductOption>,
-  ) {}
+  ) { }
 
   async create(productOptionDto: CreateProductOptionDto) {
     try {
@@ -59,6 +59,6 @@ export class ProductOptionService {
       );
     }
 
-    return await this.productOptionRepository.remove(productOption);
+    return await this.productOptionRepository.softRemove(productOption);
   }
 }

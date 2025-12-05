@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  DeleteDateColumn,
 } from 'typeorm';
 import { UserBusinessRole } from './user-business-role.entity';
 import { Business } from './business.entity';
@@ -47,4 +48,7 @@ export class User {
 
   @OneToMany(() => Order, (order) => order.user)
   orders: Order[];
+
+  @DeleteDateColumn({ nullable: true })
+  deleted_at: Date;
 }

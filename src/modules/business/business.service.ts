@@ -112,7 +112,7 @@ export class BusinessService {
     }
 
     try {
-      await this.businessRepository.remove(business);
+      await this.businessRepository.softRemove(business);
 
       return { message: `Business with id ${id} deleted successfully` };
     } catch (error) {

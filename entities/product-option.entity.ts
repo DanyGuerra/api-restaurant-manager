@@ -6,14 +6,14 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   JoinColumn,
-  Unique,
+  Index,
   OneToMany,
   DeleteDateColumn,
 } from 'typeorm';
 import { OptionGroup } from './option-group.entity';
 import { OrderItemOption } from './order-item-option.entity';
 
-@Unique(['option_group_id', 'name'])
+@Index(['option_group_id', 'name'], { unique: true, where: 'deleted_at IS NULL' })
 @Entity('product_options')
 export class ProductOption {
   @PrimaryGeneratedColumn('uuid')

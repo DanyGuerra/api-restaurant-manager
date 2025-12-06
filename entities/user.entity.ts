@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   DeleteDateColumn,
+  Index,
 } from 'typeorm';
 import { UserBusinessRole } from './user-business-role.entity';
 import { Business } from './business.entity';
@@ -13,14 +14,16 @@ import { Exclude } from 'class-transformer';
 import { Order } from './order.entity';
 
 @Entity('users')
+@Index(['email'], { unique: true, where: 'deleted_at IS NULL' })
+@Index(['username'], { unique: true, where: 'deleted_at IS NULL' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column()
   email: string;
 
-  @Column({ unique: true })
+  @Column()
   username: string;
 
   @Column()

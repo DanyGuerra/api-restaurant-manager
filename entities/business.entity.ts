@@ -18,7 +18,7 @@ import { OptionGroup } from './option-group.entity';
 import { Order } from './order.entity';
 
 @Entity('business')
-@Index(['name', 'owner'], { unique: true })
+@Index(['name', 'owner'], { unique: true, where: 'deleted_at IS NULL' })
 export class Business {
   @PrimaryGeneratedColumn('uuid')
   id: string;

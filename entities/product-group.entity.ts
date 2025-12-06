@@ -8,12 +8,13 @@ import {
   UpdateDateColumn,
   JoinColumn,
   Index,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Business } from './business.entity';
 import { Product } from './product.entity';
 
 @Entity('product_groups')
-@Index(['name', 'business'], { unique: true })
+@Index(['name', 'business'], { unique: true, where: 'deleted_at IS NULL' })
 export class ProductGroup {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -40,4 +41,7 @@ export class ProductGroup {
 
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updated_at: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 }

@@ -6,6 +6,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   JoinColumn,
   AfterLoad,
 } from 'typeorm';
@@ -38,6 +39,9 @@ export class OrderItem {
 
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updated_at: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 
   @OneToMany(() => OrderItemOption, (option) => option.orderItem, {
     cascade: true,

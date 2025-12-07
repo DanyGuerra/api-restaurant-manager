@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, DeleteDateColumn } from 'typeorm';
 import { OrderItem } from './order-item.entity';
 import { ProductOption } from './product-option.entity';
 
@@ -21,4 +21,7 @@ export class OrderItemOption {
 
   @Column('decimal', { precision: 10, scale: 2, default: 0.0 })
   price: number;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 }

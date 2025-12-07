@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Req, 
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { CreateFullOrderDto } from './dto/create-full-order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 
@@ -16,7 +17,13 @@ export class OrdersController {
         return this.ordersService.create(createOrderDto, userId, businessId);
     }
 
-    @Get('business')
+    @Post('full')
+    createFull(@Body() createFullOrderDto: CreateFullOrderDto, @Req() req: any, @BusinessIdHeader() businessId: string) {
+        const userId = req.user.sub;
+        return this.ordersService.createFullOrder(createFullOrderDto, userId, businessId);
+    }
+
+    @Get('by-business-id')
     findByBusinessId(@BusinessIdHeader() businessId: string) {
         return this.ordersService.findByBusinessId(businessId);
     }

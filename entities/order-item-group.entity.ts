@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   CreateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Order } from './order.entity';
 import { OrderItem } from './order-item.entity';
@@ -14,7 +15,10 @@ export class OrderItemGroup {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => Order, (order) => order.itemGroups, { nullable: false })
+  @ManyToOne(() => Order, (order) => order.itemGroups, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
   order: Order;
 
   @Column({ type: 'varchar', nullable: true })
@@ -28,4 +32,7 @@ export class OrderItemGroup {
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'NOW()' })
   created_at: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 }

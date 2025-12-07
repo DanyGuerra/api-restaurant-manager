@@ -65,8 +65,9 @@ export class OrderItem {
           }
           acc[groupName].push({
             name: option.productOption.name,
-            id: option.productOption.id,
             price: option.productOption.price,
+            product_option_id: option.productOption.id,
+            order_item_option_id: option.id,
           });
         }
         return acc;

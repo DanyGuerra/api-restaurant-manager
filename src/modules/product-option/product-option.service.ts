@@ -61,4 +61,16 @@ export class ProductOptionService {
 
     return await this.productOptionRepository.softRemove(productOption);
   }
+
+  async findOne(id: string) {
+    const productOption = await this.productOptionRepository.findOne({
+      where: { id },
+    });
+
+    if (!productOption) {
+      throw new NotFoundException(`Option with id ${id} not found`);
+    }
+
+    return productOption;
+  }
 }

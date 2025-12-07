@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import { ProductOptionService } from './product-option.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -19,7 +20,7 @@ import { UpdateProductOptionDto } from './dto/update-product-option.dto';
 @Controller('product-option')
 @UseGuards(JwtAuthGuard)
 export class ProductOptionController {
-  constructor(private productOptionService: ProductOptionService) {}
+  constructor(private productOptionService: ProductOptionService) { }
 
   @Post()
   @Roles(RolName.OWNER)
@@ -43,5 +44,12 @@ export class ProductOptionController {
   @UseGuards(RolesGuard)
   delete(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.productOptionService.delete(id);
+  }
+
+  @Get(':id')
+  @Roles(RolName.OWNER)
+  @UseGuards(RolesGuard)
+  findOne(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.productOptionService.findOne(id);
   }
 }

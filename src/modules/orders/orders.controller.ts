@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Req, UseGuards, ParseArrayPipe } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateFullOrderDto } from './dto/create-full-order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
+
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
@@ -18,9 +19,13 @@ export class OrdersController {
     }
 
     @Post('full')
-    createFull(@Body() createFullOrderDto: CreateFullOrderDto, @Req() req: any, @BusinessIdHeader() businessId: string) {
+    createFull(
+        @Body(new ParseArrayPipe({ items: CreateFullOrderDto })) createOrderDto: CreateFullOrderDto[],
+        @Req() req: any,
+        @BusinessIdHeader() businessId: string
+    ) {
         const userId = req.user.sub;
-        return this.ordersService.createFullOrder(createFullOrderDto, userId, businessId);
+        return this.ordersService.createFullOrder(createOrderDto, userId, businessId);
     }
 
     @Get('by-business-id')

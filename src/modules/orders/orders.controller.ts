@@ -20,7 +20,7 @@ export class OrdersController {
 
     @Post('full')
     createFull(
-        @Body(new ParseArrayPipe({ items: CreateFullOrderDto })) createOrderDto: CreateFullOrderDto[],
+        @Body() createOrderDto: CreateFullOrderDto,
         @Req() req: any,
         @BusinessIdHeader() businessId: string
     ) {

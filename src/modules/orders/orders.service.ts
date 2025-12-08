@@ -32,12 +32,14 @@ export class OrdersService {
         return await this.orderRepository.save(order);
     }
 
-    async createFullOrder(orderGroups: CreateFullOrderDto[], userId: string, businessId: string) {
-        if (!orderGroups || orderGroups.length === 0) {
+    async createFullOrder(createFullOrderDto: CreateFullOrderDto, userId: string, businessId: string) {
+        const { group_items, ...orderData } = createFullOrderDto;
+
+        if (!group_items || group_items.length === 0) {
             throw new NotFoundException('No order groups provided');
         }
 
-        const allItems: CartItemDto[] = orderGroups.flatMap(group => group.group_items.items);
+        const allItems: CartItemDto[] = group_items.flatMap(group => group.items);
 
         if (allItems.length === 0) {
             throw new NotFoundException('No items provided for order');
@@ -96,10 +98,10 @@ export class OrdersService {
         };
 
         let orderTotal = 0;
-        const finalItemGroups = orderGroups.map(group => {
-            const { subtotal, items } = processGroupItems(group.group_items.items);
+        const finalItemGroups = group_items.map(group => {
+            const { subtotal, items } = processGroupItems(group.items);
             orderTotal += subtotal;
-            const groupName = group.group_name || group.group_items.customer_name || 'Group';
+            const groupName = group.group_name || 'Group';
 
             return {
                 name: groupName,
@@ -108,20 +110,11 @@ export class OrdersService {
             };
         });
 
-        const firstGroupDetails = orderGroups[0].group_items;
-
         const order = this.orderRepository.create({
+            ...orderData,
             business: { id: businessId },
             user: { id: userId },
             total: orderTotal,
-            status: firstGroupDetails.status,
-            paid: firstGroupDetails.paid,
-            delivered_at: firstGroupDetails.delivered_at,
-            scheduled_at: firstGroupDetails.scheduled_at,
-            consumption_type: firstGroupDetails.consumption_type,
-            notes: firstGroupDetails.notes, // Or merge notes?
-            customer_name: firstGroupDetails.customer_name,
-            amount_paid: firstGroupDetails.amount_paid,
             itemGroups: finalItemGroups,
         });
 

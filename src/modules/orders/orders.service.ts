@@ -101,7 +101,7 @@ export class OrdersService {
         const finalItemGroups = group_items.map(group => {
             const { subtotal, items } = processGroupItems(group.items);
             orderTotal += subtotal;
-            const groupName = group.group_name || 'Group';
+            const groupName = group.group_name;
 
             return {
                 name: groupName,

@@ -14,10 +14,6 @@ export class CreateOrderDto {
     @IsOptional()
     status?: OrderStatus;
 
-    @IsBoolean()
-    @IsOptional()
-    paid?: boolean;
-
     @IsDateString()
     @IsOptional()
     delivered_at?: Date;

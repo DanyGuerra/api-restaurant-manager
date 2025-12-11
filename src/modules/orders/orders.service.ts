@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Order } from 'entities/order.entity';
@@ -34,6 +34,7 @@ export class OrdersService {
 
     async createFullOrder(createFullOrderDto: CreateFullOrderDto, userId: string, businessId: string) {
         const { group_items, ...orderData } = createFullOrderDto;
+        const { amount_paid } = orderData;
 
         if (!group_items || group_items.length === 0) {
             throw new NotFoundException('No order groups provided');
@@ -110,12 +111,19 @@ export class OrdersService {
             };
         });
 
+        if (amount_paid && amount_paid < orderTotal) {
+            throw new BadRequestException('Amount paid is less than the total');
+        }
+
         const order = this.orderRepository.create({
             ...orderData,
             business: { id: businessId },
             user: { id: userId },
             total: orderTotal,
             itemGroups: finalItemGroups,
+            amount_paid: orderData.amount_paid,
+            change: amount_paid ? amount_paid - orderTotal : undefined,
+            paid: amount_paid ? amount_paid > orderTotal : undefined,
         });
 
         return await this.orderRepository.save(order);

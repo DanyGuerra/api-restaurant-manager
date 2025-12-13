@@ -8,6 +8,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateFullOrderDto } from './dto/create-full-order.dto'
 import { CartItemDto } from './dto/cart-item.dto';
+import { ConsumptionType, OrderStatus } from 'src/types/order';
 
 
 @Injectable()
@@ -129,11 +130,38 @@ export class OrdersService {
         return await this.orderRepository.save(order);
     }
 
-    async findByBusinessId(businessId: string) {
-        return await this.getOrderQueryBuilder()
-            .where('order.business = :businessId', { businessId })
-            .orderBy('order.created_at', 'ASC')
-            .getMany();
+    async findByBusinessId(
+        businessId: string,
+        page: number = 1,
+        limit: number = 10,
+        status?: OrderStatus,
+        consumption_type?: ConsumptionType,
+        sort: 'ASC' | 'DESC' = 'ASC',
+    ) {
+        const queryBuilder = this.getOrderQueryBuilder()
+            .where('order.business = :businessId', { businessId });
+
+        if (status) {
+            queryBuilder.andWhere('order.status = :status', { status });
+        }
+
+        if (consumption_type) {
+            queryBuilder.andWhere('order.consumption_type = :consumption_type', { consumption_type });
+        }
+
+        const [orders, total] = await queryBuilder
+            .orderBy('order.created_at', sort)
+            .skip((page - 1) * limit)
+            .take(limit)
+            .getManyAndCount();
+
+        return {
+            data: orders,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+        };
     }
 
     async findOne(id: string) {

@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Req, UseGuards, ParseArrayPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Req, UseGuards, ParseArrayPipe, Query, DefaultValuePipe, ParseIntPipe, ParseEnumPipe } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateFullOrderDto } from './dto/create-full-order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
+import { ConsumptionType, OrderStatus } from 'src/types/order';
 
 
 @Controller('orders')
@@ -29,8 +30,15 @@ export class OrdersController {
     }
 
     @Get('by-business-id')
-    findByBusinessId(@BusinessIdHeader() businessId: string) {
-        return this.ordersService.findByBusinessId(businessId);
+    findByBusinessId(
+        @BusinessIdHeader() businessId: string,
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+        @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+        @Query('status', new ParseEnumPipe(OrderStatus, { optional: true })) status?: OrderStatus,
+        @Query('consumption_type', new ParseEnumPipe(ConsumptionType, { optional: true })) consumption_type?: ConsumptionType,
+        @Query('sort', new DefaultValuePipe('ASC')) sort?: 'ASC' | 'DESC',
+    ) {
+        return this.ordersService.findByBusinessId(businessId, page, limit, status, consumption_type, sort);
     }
 
     @Get(':id')

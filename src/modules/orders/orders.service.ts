@@ -132,6 +132,7 @@ export class OrdersService {
     async findByBusinessId(businessId: string) {
         return await this.getOrderQueryBuilder()
             .where('order.business = :businessId', { businessId })
+            .orderBy('order.created_at', 'ASC')
             .getMany();
     }
 

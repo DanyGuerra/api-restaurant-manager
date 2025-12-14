@@ -26,11 +26,7 @@ export class UserBusinessRolesController {
   @Roles(RolName.OWNER)
   @UseGuards(RolesGuard)
   async assignRole(@Body() body: AssignRoleDto) {
-    return this.ubrService.assignRole(
-      body.user_id,
-      body.business_id,
-      body.role_id,
-    );
+    return this.ubrService.assignRole(body.user_id, body.business_id, body.role_id);
   }
 
   @Get('business/:id')
@@ -42,28 +38,18 @@ export class UserBusinessRolesController {
 
   @Get()
   async getRolesByBusinessAndUser(@Query() querys: GetUserDto) {
-    return this.ubrService.findByBusinessAndUser(
-      querys.user_id,
-      querys.business_id,
-    );
+    return this.ubrService.findByBusinessAndUser(querys.user_id, querys.business_id);
   }
 
   @Patch()
   @Roles(RolName.OWNER)
   @UseGuards(RolesGuard)
   async updateRole(@Body() body: AssignRoleDto) {
-    return this.ubrService.updateRole(
-      body.user_id,
-      body.business_id,
-      body.role_id,
-    );
+    return this.ubrService.updateRole(body.user_id, body.business_id, body.role_id);
   }
 
   @Delete()
   async removeUserFromBusiness(@Body() body: GetUserDto) {
-    return this.ubrService.removeUserFromBusiness(
-      body.user_id,
-      body.business_id,
-    );
+    return this.ubrService.removeUserFromBusiness(body.user_id, body.business_id);
   }
 }

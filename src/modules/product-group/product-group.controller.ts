@@ -51,10 +51,7 @@ export class ProductGroupController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateProductGroup: UpdateProductGroupDto,
   ) {
-    return this.productGroupService.updateProductGroupById(
-      id,
-      updateProductGroup,
-    );
+    return this.productGroupService.updateProductGroupById(id, updateProductGroup);
   }
 
   @Delete(':id')

@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Req,
-  UseGuards,
-  Patch,
-  Body,
-} from '@nestjs/common';
+import { Controller, Get, Param, Req, UseGuards, Patch, Body } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { instanceToPlain } from 'class-transformer';
@@ -36,10 +28,7 @@ export class UsersController {
   }
 
   @Patch('update')
-  async updateUser(
-    @Body() updateUserDto: UpdateUserDto,
-    @Req() req: RequestWithUser,
-  ) {
+  async updateUser(@Body() updateUserDto: UpdateUserDto, @Req() req: RequestWithUser) {
     const userId = req.user['sub'];
     const user = await this.userService.update(userId, updateUserDto);
     return instanceToPlain(user);

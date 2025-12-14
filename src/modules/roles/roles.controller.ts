@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Put,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateRolDto } from './dto/crear-rol.dto';
@@ -43,10 +33,7 @@ export class RolesController {
   }
 
   @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() dto: UpdateRolDto,
-  ): Promise<Role> {
+  async update(@Param('id') id: string, @Body() dto: UpdateRolDto): Promise<Role> {
     return this.rolesService.update(Number(id), dto);
   }
 

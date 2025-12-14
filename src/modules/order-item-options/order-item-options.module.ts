@@ -5,9 +5,9 @@ import { OrderItemOptionsController } from './order-item-options.controller';
 import { OrderItemOption } from 'entities/order-item-option.entity';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([OrderItemOption])],
-    controllers: [OrderItemOptionsController],
-    providers: [OrderItemOptionsService],
-    exports: [OrderItemOptionsService],
+  imports: [TypeOrmModule.forFeature([OrderItemOption])],
+  controllers: [OrderItemOptionsController],
+  providers: [OrderItemOptionsService],
+  exports: [OrderItemOptionsService],
 })
-export class OrderItemOptionsModule { }
+export class OrderItemOptionsModule {}

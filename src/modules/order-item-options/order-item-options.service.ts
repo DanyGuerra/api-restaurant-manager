@@ -7,49 +7,49 @@ import { UpdateOrderItemOptionDto } from './dto/update-order-item-option.dto';
 
 @Injectable()
 export class OrderItemOptionsService {
-    constructor(
-        @InjectRepository(OrderItemOption)
-        private orderItemOptionRepository: Repository<OrderItemOption>,
-    ) { }
+  constructor(
+    @InjectRepository(OrderItemOption)
+    private orderItemOptionRepository: Repository<OrderItemOption>,
+  ) {}
 
-    async create(createOrderItemOptionDto: CreateOrderItemOptionDto) {
-        const option = this.orderItemOptionRepository.create({
-            ...createOrderItemOptionDto,
-            orderItem: { id: createOrderItemOptionDto.order_item_id },
-            productOption: { id: createOrderItemOptionDto.product_option_id },
-        });
-        return await this.orderItemOptionRepository.save(option);
+  async create(createOrderItemOptionDto: CreateOrderItemOptionDto) {
+    const option = this.orderItemOptionRepository.create({
+      ...createOrderItemOptionDto,
+      orderItem: { id: createOrderItemOptionDto.order_item_id },
+      productOption: { id: createOrderItemOptionDto.product_option_id },
+    });
+    return await this.orderItemOptionRepository.save(option);
+  }
+
+  async findAll() {
+    return await this.orderItemOptionRepository.find({
+      relations: ['orderItem', 'productOption'],
+    });
+  }
+
+  async findOne(id: string) {
+    const option = await this.orderItemOptionRepository.findOne({
+      where: { id },
+      relations: ['orderItem', 'productOption'],
+    });
+
+    if (!option) {
+      throw new NotFoundException(`OrderItemOption with id ${id} not found`);
     }
 
-    async findAll() {
-        return await this.orderItemOptionRepository.find({
-            relations: ['orderItem', 'productOption'],
-        });
-    }
+    return option;
+  }
 
-    async findOne(id: string) {
-        const option = await this.orderItemOptionRepository.findOne({
-            where: { id },
-            relations: ['orderItem', 'productOption'],
-        });
+  async update(id: string, updateOrderItemOptionDto: UpdateOrderItemOptionDto) {
+    const option = await this.findOne(id);
 
-        if (!option) {
-            throw new NotFoundException(`OrderItemOption with id ${id} not found`);
-        }
+    Object.assign(option, updateOrderItemOptionDto);
 
-        return option;
-    }
+    return await this.orderItemOptionRepository.save(option);
+  }
 
-    async update(id: string, updateOrderItemOptionDto: UpdateOrderItemOptionDto) {
-        const option = await this.findOne(id);
-
-        Object.assign(option, updateOrderItemOptionDto);
-
-        return await this.orderItemOptionRepository.save(option);
-    }
-
-    async remove(id: string) {
-        const option = await this.findOne(id);
-        return await this.orderItemOptionRepository.remove(option);
-    }
+  async remove(id: string) {
+    const option = await this.findOne(id);
+    return await this.orderItemOptionRepository.remove(option);
+  }
 }

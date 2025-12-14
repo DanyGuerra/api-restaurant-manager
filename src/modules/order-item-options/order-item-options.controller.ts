@@ -17,9 +17,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @Controller('order-item-options')
 @UseGuards(JwtAuthGuard)
 export class OrderItemOptionsController {
-  constructor(
-    private readonly orderItemOptionsService: OrderItemOptionsService,
-  ) {}
+  constructor(private readonly orderItemOptionsService: OrderItemOptionsService) {}
 
   @Post()
   create(@Body() createOrderItemOptionDto: CreateOrderItemOptionDto) {

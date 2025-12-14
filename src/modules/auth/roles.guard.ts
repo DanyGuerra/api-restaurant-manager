@@ -1,10 +1,5 @@
 import { RolName } from 'src/types/roles';
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { ROLES_KEY } from './roles.decorator';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,13 +12,13 @@ export class RolesGuard implements CanActivate {
     private reflector: Reflector,
     @InjectRepository(UserBusinessRole)
     private readonly ubrRepo: Repository<UserBusinessRole>,
-  ) { }
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const requiredRoles = this.reflector.getAllAndOverride<RolName[]>(
-      ROLES_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const requiredRoles = this.reflector.getAllAndOverride<RolName[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
     if (!requiredRoles) return true;
 
     const request = context.switchToHttp().getRequest();
@@ -47,11 +42,9 @@ export class RolesGuard implements CanActivate {
     }
 
     // Role validation
-    const hasRole = requiredRoles.includes(relation.role.name as RolName);
+    const hasRole = requiredRoles.includes(relation.role.name);
     if (!hasRole) {
-      throw new ForbiddenException(
-        `You need one of the roles: ${requiredRoles.join(', ')}`,
-      );
+      throw new ForbiddenException(`You need one of the roles: ${requiredRoles.join(', ')}`);
     }
 
     return true;

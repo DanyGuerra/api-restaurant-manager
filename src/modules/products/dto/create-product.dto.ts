@@ -1,11 +1,4 @@
-import {
-  IsUUID,
-  IsString,
-  IsNumber,
-  IsBoolean,
-  IsOptional,
-  IsArray,
-} from 'class-validator';
+import { IsUUID, IsString, IsNumber, IsBoolean, IsOptional, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateProductDto {

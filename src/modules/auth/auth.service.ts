@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -52,10 +48,7 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<UserWithoutPassword> {
+  async validateUser(email: string, password: string): Promise<UserWithoutPassword> {
     const user = await this.userService.findByEmail(email);
 
     if (!user) {
@@ -121,11 +114,7 @@ export class AuthService {
     this.userService.updateRefreshToken(userId, '');
   }
 
-  async updatePassword(
-    userId: string,
-    oldPassword: string,
-    newPassword: string,
-  ) {
+  async updatePassword(userId: string, oldPassword: string, newPassword: string) {
     const user = await this.userService.findById(userId);
     if (!user) {
       throw new UnauthorizedException('Unauthorized');

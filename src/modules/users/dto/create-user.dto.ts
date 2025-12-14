@@ -1,10 +1,4 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Matches,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
 
 export class CreateUserDto {
   @IsEmail()
@@ -13,8 +7,7 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   @Matches(/^[a-z0-9_-]+$/, {
-    message:
-      'Username can only contain lowercase letters, numbers, and the symbols _ or -',
+    message: 'Username can only contain lowercase letters, numbers, and the symbols _ or -',
   })
   username: string;
 

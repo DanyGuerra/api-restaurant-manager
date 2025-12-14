@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductGroup } from 'entities/product-group.entity';
 import { Repository } from 'typeorm';
@@ -14,7 +10,7 @@ export class ProductGroupService {
   constructor(
     @InjectRepository(ProductGroup)
     private productGroupRepository: Repository<ProductGroup>,
-  ) { }
+  ) {}
 
   async create(productGroupDto: CreateProductGroupDto, businessId: string) {
     const productGroup = this.productGroupRepository.create({
@@ -94,9 +90,7 @@ export class ProductGroupService {
     } catch (error) {
       if (error.code === '23503')
         // Postgres error code for constrait
-        throw new ConflictException(
-          'Product group debe de estar vacío para poder eliminarlo',
-        );
+        throw new ConflictException('Product group debe de estar vacío para poder eliminarlo');
       throw error;
     }
   }

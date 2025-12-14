@@ -25,10 +25,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(200)
-  async login(
-    @Body() body: LoginUserDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async login(@Body() body: LoginUserDto, @Res({ passthrough: true }) res: Response) {
     const user = await this.authService.validateUser(body.email, body.password);
     const tokens = await this.authService.login(user);
 
@@ -44,10 +41,7 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(200)
-  async refresh(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies['refresh_token'];
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
@@ -93,10 +87,6 @@ export class AuthController {
   ) {
     const userId = req.user.sub;
 
-    return this.authService.updatePassword(
-      userId,
-      body.oldPassword,
-      body.newPassword,
-    );
+    return this.authService.updatePassword(userId, body.oldPassword, body.newPassword);
   }
 }

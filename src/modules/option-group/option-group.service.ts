@@ -82,9 +82,7 @@ export class OptionGroupService {
         );
       }
 
-      throw new InternalServerErrorException(
-        'Unexpected error while deleting business',
-      );
+      throw new InternalServerErrorException('Unexpected error while deleting business');
     }
   }
 }

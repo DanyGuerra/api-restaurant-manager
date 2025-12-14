@@ -1,11 +1,11 @@
 import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateOrderItemGroupDto {
-    @IsString()
-    @IsOptional()
-    name?: string;
+  @IsString()
+  @IsOptional()
+  name?: string;
 
-    @IsNumber()
-    @IsOptional()
-    subtotal?: number;
+  @IsNumber()
+  @IsOptional()
+  subtotal?: number;
 }

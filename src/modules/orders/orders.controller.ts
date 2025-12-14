@@ -1,4 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, Req, UseGuards, ParseArrayPipe, Query, DefaultValuePipe, ParseIntPipe, ParseEnumPipe } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    ParseUUIDPipe,
+    Req,
+    UseGuards,
+    Query,
+    DefaultValuePipe,
+    ParseIntPipe,
+    ParseEnumPipe,
+} from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
@@ -7,14 +22,17 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 import { ConsumptionType, OrderStatus } from 'src/types/order';
 
-
 @Controller('orders')
 @UseGuards(JwtAuthGuard)
 export class OrdersController {
     constructor(private readonly ordersService: OrdersService) { }
 
     @Post()
-    create(@Body() createOrderDto: CreateOrderDto, @Req() req: any, @BusinessIdHeader() businessId: string,) {
+    create(
+        @Body() createOrderDto: CreateOrderDto,
+        @Req() req: any,
+        @BusinessIdHeader() businessId: string,
+    ) {
         const userId = req.user.sub;
         return this.ordersService.create(createOrderDto, userId, businessId);
     }
@@ -23,10 +41,14 @@ export class OrdersController {
     createFull(
         @Body() createOrderDto: CreateFullOrderDto,
         @Req() req: any,
-        @BusinessIdHeader() businessId: string
+        @BusinessIdHeader() businessId: string,
     ) {
         const userId = req.user.sub;
-        return this.ordersService.createFullOrder(createOrderDto, userId, businessId);
+        return this.ordersService.createFullOrder(
+            createOrderDto,
+            userId,
+            businessId,
+        );
     }
 
     @Get('by-business-id')
@@ -34,13 +56,27 @@ export class OrdersController {
         @BusinessIdHeader() businessId: string,
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
-        @Query('status', new ParseEnumPipe(OrderStatus, { optional: true })) status?: OrderStatus,
-        @Query('consumption_type', new ParseEnumPipe(ConsumptionType, { optional: true })) consumption_type?: ConsumptionType,
+        @Query('status', new ParseEnumPipe(OrderStatus, { optional: true }))
+        status?: OrderStatus,
+        @Query(
+            'consumption_type',
+            new ParseEnumPipe(ConsumptionType, { optional: true }),
+        )
+        consumption_type?: ConsumptionType,
         @Query('sort', new DefaultValuePipe('ASC')) sort?: 'ASC' | 'DESC',
         @Query('start_date') start_date?: string,
         @Query('end_date') end_date?: string,
     ) {
-        return this.ordersService.findByBusinessId(businessId, page, limit, status, consumption_type, sort, start_date, end_date);
+        return this.ordersService.findByBusinessId(
+            businessId,
+            page,
+            limit,
+            status,
+            consumption_type,
+            sort,
+            start_date,
+            end_date,
+        );
     }
 
     @Get(':id')
@@ -49,7 +85,10 @@ export class OrdersController {
     }
 
     @Patch(':id')
-    update(@Param('id', new ParseUUIDPipe()) id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    update(
+        @Param('id', new ParseUUIDPipe()) id: string,
+        @Body() updateOrderDto: UpdateOrderDto,
+    ) {
         return this.ordersService.update(id, updateOrderDto);
     }
 

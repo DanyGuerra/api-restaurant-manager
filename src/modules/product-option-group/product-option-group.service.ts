@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductOptionGroup } from 'entities/product-option-group.entity';
 import { Repository } from 'typeorm';
@@ -26,9 +22,7 @@ export class ProductOptionGroupService {
     } catch (error) {
       if (error.code === '23505')
         // Postgres error code for unique violation
-        throw new ConflictException(
-          'Option group already exists for this product',
-        );
+        throw new ConflictException('Option group already exists for this product');
       throw error;
     }
   }
@@ -41,9 +35,7 @@ export class ProductOptionGroupService {
       },
     });
     if (!productOptionGroup) {
-      throw new NotFoundException(
-        `Product option group with id ${dto.option_group_id} not found`,
-      );
+      throw new NotFoundException(`Product option group with id ${dto.option_group_id} not found`);
     }
 
     await this.productOptionRepository.remove(productOptionGroup);
@@ -60,9 +52,7 @@ export class ProductOptionGroupService {
     });
 
     if (productOptionGroup.length === 0) {
-      throw new NotFoundException(
-        `Product option groups with product id ${productId} not found`,
-      );
+      throw new NotFoundException(`Product option groups with product id ${productId} not found`);
     }
 
     return productOptionGroup;

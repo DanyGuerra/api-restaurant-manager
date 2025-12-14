@@ -20,7 +20,7 @@ import { UpdateProductOptionDto } from './dto/update-product-option.dto';
 @Controller('product-option')
 @UseGuards(JwtAuthGuard)
 export class ProductOptionController {
-  constructor(private productOptionService: ProductOptionService) { }
+  constructor(private productOptionService: ProductOptionService) {}
 
   @Post()
   @Roles(RolName.OWNER)

@@ -10,7 +10,7 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
-  ) { }
+  ) {}
 
   async createProduct(createProductsDto: CreateProductDto[]) {
     const products = createProductsDto.map((dto) =>
@@ -54,9 +54,7 @@ export class ProductsService {
     });
 
     if (!product) {
-      throw new NotFoundException(
-        `Product with id ${productGroupId} not found`,
-      );
+      throw new NotFoundException(`Product with id ${productGroupId} not found`);
     }
 
     return await this.productRepository.save(product);
@@ -69,9 +67,7 @@ export class ProductsService {
     });
 
     if (!products) {
-      throw new NotFoundException(
-        `Products for business with id ${businessId} not found`,
-      );
+      throw new NotFoundException(`Products for business with id ${businessId} not found`);
     }
 
     return products;

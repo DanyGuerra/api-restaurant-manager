@@ -20,7 +20,7 @@ import { RolesGuard } from '../auth/roles.guard';
 @Controller('products')
 @UseGuards(JwtAuthGuard)
 export class ProductsController {
-  constructor(private productService: ProductsService) { }
+  constructor(private productService: ProductsService) {}
 
   @Post()
   @Roles(RolName.OWNER)

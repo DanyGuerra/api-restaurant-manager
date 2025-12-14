@@ -26,10 +26,7 @@ export class OptionGroupController {
   @Post()
   @Roles(RolName.OWNER)
   @UseGuards(RolesGuard)
-  create(
-    @BusinessIdHeader() businessId: string,
-    @Body() createOptionGroup: CreateOptionGroup,
-  ) {
+  create(@BusinessIdHeader() businessId: string, @Body() createOptionGroup: CreateOptionGroup) {
     return this.optionGroupService.create(createOptionGroup, businessId);
   }
 

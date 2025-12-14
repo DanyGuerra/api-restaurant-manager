@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Post,
-  Put,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, Req, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateBusinessDto } from './dto/create-business.dto';
 import { BusinessService } from './business.service';
@@ -47,10 +38,7 @@ export class BusinessController {
   @Put()
   @Roles(RolName.OWNER)
   @UseGuards(RolesGuard)
-  updateBusiness(
-    @BusinessIdHeader() id: string,
-    @Body() updateBusiness: UpdateBusinessDto,
-  ) {
+  updateBusiness(@BusinessIdHeader() id: string, @Body() updateBusiness: UpdateBusinessDto) {
     return this.businessService.updateBusiness(id, updateBusiness);
   }
 
@@ -58,15 +46,8 @@ export class BusinessController {
   async create(@Body() createBusiness: CreateBusinessDto, @Req() req: any) {
     const userId = req.user.sub;
     await this.userService.findById(userId);
-    const business = await this.businessService.createBusiness(
-      createBusiness,
-      userId,
-    );
-    await this.userBusinessRolesService.assignRole(
-      userId,
-      business.id,
-      RolId.OWNER,
-    );
+    const business = await this.businessService.createBusiness(createBusiness, userId);
+    await this.userBusinessRolesService.assignRole(userId, business.id, RolId.OWNER);
 
     return await this.businessService.save(business);
   }

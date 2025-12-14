@@ -82,4 +82,4 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
     OrderItemOptionsModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

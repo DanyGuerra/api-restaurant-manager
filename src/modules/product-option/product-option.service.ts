@@ -1,9 +1,5 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ProductOption } from 'entities/product-option.entity';
 import { CreateProductOptionDto } from './dto/create-product-option.dto';
@@ -14,12 +10,11 @@ export class ProductOptionService {
   constructor(
     @InjectRepository(ProductOption)
     private productOptionRepository: Repository<ProductOption>,
-  ) { }
+  ) {}
 
   async create(productOptionDto: CreateProductOptionDto) {
     try {
-      const productOption =
-        await this.productOptionRepository.create(productOptionDto);
+      const productOption = await this.productOptionRepository.create(productOptionDto);
       return await this.productOptionRepository.save(productOption);
     } catch (error) {
       if (error.code === '23505') {
@@ -29,18 +24,13 @@ export class ProductOptionService {
     }
   }
 
-  async update(
-    updateOptionDto: UpdateProductOptionDto,
-    productOptionId: string,
-  ) {
+  async update(updateOptionDto: UpdateProductOptionDto, productOptionId: string) {
     const productOption = await this.productOptionRepository.findOne({
       where: { id: productOptionId },
     });
 
     if (!productOption) {
-      throw new NotFoundException(
-        `Option with id ${productOptionId} not found`,
-      );
+      throw new NotFoundException(`Option with id ${productOptionId} not found`);
     }
 
     Object.assign(productOption, updateOptionDto);
@@ -54,9 +44,7 @@ export class ProductOptionService {
     });
 
     if (!productOption) {
-      throw new NotFoundException(
-        `Option with id ${productOptionId} not found`,
-      );
+      throw new NotFoundException(`Option with id ${productOptionId} not found`);
     }
 
     return await this.productOptionRepository.softRemove(productOption);

@@ -15,12 +15,9 @@ export class BusinessService {
   constructor(
     @InjectRepository(Business)
     private businessRepository: Repository<Business>,
-  ) { }
+  ) {}
 
-  async createBusiness(
-    dto: CreateBusinessDto,
-    userId: string,
-  ): Promise<Business> {
+  async createBusiness(dto: CreateBusinessDto, userId: string): Promise<Business> {
     const business = this.businessRepository.create({
       ...dto,
       owner: { id: userId },
@@ -30,9 +27,7 @@ export class BusinessService {
       return await this.businessRepository.save(business);
     } catch (error) {
       if (error.code === '23505') {
-        throw new ConflictException(
-          'This business name is already taken for this owner',
-        );
+        throw new ConflictException('This business name is already taken for this owner');
       }
       throw error;
     }
@@ -50,9 +45,7 @@ export class BusinessService {
       return await this.businessRepository.save(updatedBusiness);
     } catch (error) {
       if (error.code === '23505') {
-        throw new ConflictException(
-          'This business name is already taken for this owner',
-        );
+        throw new ConflictException('This business name is already taken for this owner');
       }
       throw error;
     }
@@ -123,9 +116,7 @@ export class BusinessService {
         );
       }
 
-      throw new InternalServerErrorException(
-        'Unexpected error while deleting business',
-      );
+      throw new InternalServerErrorException('Unexpected error while deleting business');
     }
   }
 }

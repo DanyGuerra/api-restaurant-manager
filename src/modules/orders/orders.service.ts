@@ -4,6 +4,8 @@ import { Repository, In } from 'typeorm';
 import { Order } from 'entities/order.entity';
 import { Product } from 'entities/product.entity';
 import { ProductOption } from 'entities/product-option.entity';
+import { OrderItem } from 'entities/order-item.entity';
+import { OrderItemGroup } from 'entities/order-item-group.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateFullOrderDto } from './dto/create-full-order.dto';
@@ -19,7 +21,11 @@ export class OrdersService {
     private productRepository: Repository<Product>,
     @InjectRepository(ProductOption)
     private productOptionRepository: Repository<ProductOption>,
-  ) {}
+    @InjectRepository(OrderItem)
+    private orderItemRepository: Repository<OrderItem>,
+    @InjectRepository(OrderItemGroup)
+    private orderItemGroupRepository: Repository<OrderItemGroup>,
+  ) { }
 
   async create(createOrderDto: CreateOrderDto, userId: string, businessId: string) {
     const order = this.orderRepository.create({
@@ -207,5 +213,78 @@ export class OrdersService {
   async remove(id: string) {
     const order = await this.findOne(id);
     return await this.orderRepository.softRemove(order);
+  }
+
+  async recalculateOrderTotals(orderId: string) {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['itemGroups', 'itemGroups.items'],
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with id ${orderId} not found`);
+    }
+
+    let orderTotal = 0;
+
+    order.itemGroups.forEach((group) => {
+      let groupSubtotal = 0;
+      if (group.items) {
+        groupSubtotal = group.items.reduce((sum, item) => sum + Number(item.item_total), 0);
+      }
+      group.subtotal = groupSubtotal;
+      orderTotal += groupSubtotal;
+    });
+
+    order.total = orderTotal;
+
+    if (order.amount_paid) {
+      order.change = order.amount_paid - orderTotal;
+      order.paid = order.amount_paid >= orderTotal;
+    }
+
+    return await this.orderRepository.save(order);
+  }
+
+  async removeOrderItem(itemId: string) {
+    const item = await this.orderItemRepository.findOne({
+      where: { id: itemId },
+      relations: ['group', 'group.order'],
+    });
+
+    if (!item) {
+      throw new NotFoundException(`Order item with id ${itemId} not found`);
+    }
+
+    const orderId = item.group?.order?.id;
+
+    await this.orderItemRepository.softRemove(item);
+
+    if (orderId) {
+      await this.recalculateOrderTotals(orderId);
+    }
+
+    return { message: 'Item removed and order updated' };
+  }
+
+  async removeOrderItemGroup(itemGroupId: string) {
+    const group = await this.orderItemGroupRepository.findOne({
+      where: { id: itemGroupId },
+      relations: ['order'],
+    });
+
+    if (!group) {
+      throw new NotFoundException(`Order item group with id ${itemGroupId} not found`);
+    }
+
+    const orderId = group.order.id;
+
+    await this.orderItemGroupRepository.softRemove(group);
+
+    if (orderId) {
+      await this.recalculateOrderTotals(orderId);
+    }
+
+    return { message: 'Item group removed and order updated' };
   }
 }

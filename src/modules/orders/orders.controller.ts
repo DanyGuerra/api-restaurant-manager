@@ -96,4 +96,14 @@ export class OrdersController {
     remove(@Param('id', new ParseUUIDPipe()) id: string) {
         return this.ordersService.remove(id);
     }
+
+    @Delete('item/:itemId')
+    deleteItem(@Param('itemId', new ParseUUIDPipe()) itemId: string) {
+        return this.ordersService.removeOrderItem(itemId);
+    }
+
+    @Delete('item-group/:itemGroupId')
+    deleteItemGroup(@Param('itemGroupId', new ParseUUIDPipe()) itemGroupId: string) {
+        return this.ordersService.removeOrderItemGroup(itemGroupId);
+    }
 }

@@ -37,8 +37,10 @@ export class OrdersController {
         @Query('status', new ParseEnumPipe(OrderStatus, { optional: true })) status?: OrderStatus,
         @Query('consumption_type', new ParseEnumPipe(ConsumptionType, { optional: true })) consumption_type?: ConsumptionType,
         @Query('sort', new DefaultValuePipe('ASC')) sort?: 'ASC' | 'DESC',
+        @Query('start_date') start_date?: string,
+        @Query('end_date') end_date?: string,
     ) {
-        return this.ordersService.findByBusinessId(businessId, page, limit, status, consumption_type, sort);
+        return this.ordersService.findByBusinessId(businessId, page, limit, status, consumption_type, sort, start_date, end_date);
     }
 
     @Get(':id')

@@ -137,6 +137,8 @@ export class OrdersService {
         status?: OrderStatus,
         consumption_type?: ConsumptionType,
         sort: 'ASC' | 'DESC' = 'ASC',
+        start_date?: string,
+        end_date?: string,
     ) {
         const queryBuilder = this.getOrderQueryBuilder()
             .where('order.business = :businessId', { businessId });
@@ -147,6 +149,14 @@ export class OrdersService {
 
         if (consumption_type) {
             queryBuilder.andWhere('order.consumption_type = :consumption_type', { consumption_type });
+        }
+
+        if (start_date) {
+            queryBuilder.andWhere('order.created_at >= :start_date', { start_date });
+        }
+
+        if (end_date) {
+            queryBuilder.andWhere('order.created_at <= :end_date', { end_date });
         }
 
         const [orders, total] = await queryBuilder

@@ -207,6 +207,15 @@ export class OrdersService {
 
     Object.assign(order, updateOrderDto);
 
+    if (updateOrderDto.amount_paid && updateOrderDto.amount_paid < order.total) {
+      throw new BadRequestException('Amount paid is less than the total');
+    }
+
+    if (updateOrderDto.amount_paid) {
+      order.change = updateOrderDto.amount_paid - order.total;
+      order.paid = updateOrderDto.amount_paid >= order.total;
+    }
+
     return await this.orderRepository.save(order);
   }
 

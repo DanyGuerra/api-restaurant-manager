@@ -51,6 +51,7 @@ export class ProductsService {
   async getByProductGroupId(productGroupId: string) {
     const product = await this.productRepository.find({
       where: { product_group: { id: productGroupId } },
+      relations: ['option_groups', 'option_groups.options'],
     });
 
     if (!product) {

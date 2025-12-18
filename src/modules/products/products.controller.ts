@@ -46,7 +46,7 @@ export class ProductsController {
   }
 
   @Get()
-  getByProductId(@Body('id') id: string) {
+  getByProductId(@Query('product_group_id', new ParseUUIDPipe()) id: string) {
     return this.productService.getByProductGroupId(id);
   }
 

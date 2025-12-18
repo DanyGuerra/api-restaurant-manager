@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductsService } from './products.service';
@@ -20,7 +21,7 @@ import { RolesGuard } from '../auth/roles.guard';
 @Controller('products')
 @UseGuards(JwtAuthGuard)
 export class ProductsController {
-  constructor(private productService: ProductsService) {}
+  constructor(private productService: ProductsService) { }
 
   @Post()
   @Roles(RolName.OWNER)
@@ -50,8 +51,13 @@ export class ProductsController {
   }
 
   @Get('business/:id')
-  getProductsByBusinessId(@Param('id', new ParseUUIDPipe()) id: string) {
-    return this.productService.getProductsByBusinessId(id);
+  getProductsByBusinessId(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('search') search?: string,
+  ) {
+    return this.productService.getProductsByBusinessId(id, page, limit, search);
   }
 
   @Delete(':id')

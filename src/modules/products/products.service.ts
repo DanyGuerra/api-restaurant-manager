@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'entities/product.entity';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
@@ -10,7 +10,7 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
-  ) {}
+  ) { }
 
   async createProduct(createProductsDto: CreateProductDto[]) {
     const products = createProductsDto.map((dto) =>
@@ -60,17 +60,34 @@ export class ProductsService {
     return await this.productRepository.save(product);
   }
 
-  async getProductsByBusinessId(businessId: string) {
-    const products = await this.productRepository.find({
-      where: { product_group: { business: { id: businessId } } },
-      relations: ['product_group', 'option_groups', 'option_groups.options'],
-    });
+  async getProductsByBusinessId(
+    businessId: string,
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+  ) {
+    const whereCondition: any = {
+      product_group: { business: { id: businessId } },
+    };
 
-    if (!products) {
-      throw new NotFoundException(`Products for business with id ${businessId} not found`);
+    if (search) {
+      whereCondition.name = ILike(`%${search}%`);
     }
 
-    return products;
+    const [products, total] = await this.productRepository.findAndCount({
+      where: whereCondition,
+      relations: ['product_group', 'option_groups', 'option_groups.options'],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return {
+      data: products,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async deleteById(id: string) {

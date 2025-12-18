@@ -15,7 +15,7 @@ export class BusinessService {
   constructor(
     @InjectRepository(Business)
     private businessRepository: Repository<Business>,
-  ) {}
+  ) { }
 
   async createBusiness(dto: CreateBusinessDto, userId: string): Promise<Business> {
     const business = this.businessRepository.create({
@@ -62,14 +62,42 @@ export class BusinessService {
   async getBusinessFullStructure(businessId: string) {
     const business = await this.businessRepository.findOne({
       where: { id: businessId },
-      relations: [
-        'product_group',
-        'product_group.products',
-        'product_group.products.product_group',
-        'product_group.products.option_groups',
-        'product_group.products.option_groups.options',
-        'product_group.products.option_groups.product_option_groups',
-      ],
+      select: {
+        id: true,
+        name: true,
+        product_group: {
+          id: true,
+          name: true,
+          products: {
+            id: true,
+            name: true,
+            description: true,
+            base_price: true,
+            available: true,
+            option_groups: {
+              id: true,
+              name: true,
+              min_options: true,
+              max_options: true,
+              options: {
+                id: true,
+                name: true,
+                price: true,
+                available: true,
+              },
+            },
+          },
+        },
+      },
+      relations: {
+        product_group: {
+          products: {
+            option_groups: {
+              options: true,
+            },
+          },
+        },
+      },
     });
 
     if (!business) {

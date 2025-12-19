@@ -194,7 +194,7 @@ export class OrdersService {
       .createQueryBuilder('order')
       .leftJoinAndSelect('order.itemGroups', 'itemGroups')
       .leftJoinAndSelect('itemGroups.items', 'items')
-      .leftJoin('items.product', 'product')
+      .leftJoin('items.product', 'product', 'product.deleted_at IS NOT NULL OR product.deleted_at IS NULL')
       .addSelect(['product.id', 'product.name'])
       .leftJoinAndSelect('items.options', 'options')
       .leftJoinAndSelect('options.productOption', 'productOption')

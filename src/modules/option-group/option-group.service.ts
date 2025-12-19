@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OptionGroup } from 'entities/option-group.entity';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { CreateOptionGroup } from './dto/create-option-group.dto';
 import { UpdateOptionGroup } from './dto/update-option-group.dto';
 
@@ -15,7 +15,7 @@ export class OptionGroupService {
   constructor(
     @InjectRepository(OptionGroup)
     private optionGroupRepository: Repository<OptionGroup>,
-  ) {}
+  ) { }
 
   async create(createOptionGroup: CreateOptionGroup, businessId: string) {
     const optionGroup = await this.optionGroupRepository.create({
@@ -39,13 +39,35 @@ export class OptionGroupService {
     return optionGroup;
   }
 
-  async getByBusinessId(businessId: string) {
-    const optionGroups = await this.optionGroupRepository.find({
-      where: { business: { id: businessId } },
+  async getByBusinessId(
+    businessId: string,
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+  ) {
+    const whereCondition: any = {
+      business: { id: businessId },
+    };
+
+    if (search) {
+      whereCondition.name = ILike(`%${search}%`);
+    }
+
+    const [optionGroups, total] = await this.optionGroupRepository.findAndCount({
+      where: whereCondition,
       relations: ['options'],
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { created_at: 'DESC' },
     });
 
-    return optionGroups;
+    return {
+      data: optionGroups,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async updateById(id: string, updateOptionGroup: UpdateOptionGroup) {

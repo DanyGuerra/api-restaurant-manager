@@ -8,6 +8,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { CreateOptionGroup } from './dto/create-option-group.dto';
 import { OptionGroupService } from './option-group.service';
@@ -21,7 +22,7 @@ import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorato
 @Controller('option-group')
 @UseGuards(JwtAuthGuard)
 export class OptionGroupController {
-  constructor(private optionGroupService: OptionGroupService) {}
+  constructor(private optionGroupService: OptionGroupService) { }
 
   @Post()
   @Roles(RolName.OWNER)
@@ -36,8 +37,13 @@ export class OptionGroupController {
   }
 
   @Get('business/:businessId')
-  getByBusinessId(@Param('businessId', new ParseUUIDPipe()) id: string) {
-    return this.optionGroupService.getByBusinessId(id);
+  getByBusinessId(
+    @Param('businessId', new ParseUUIDPipe()) id: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('search') search?: string,
+  ) {
+    return this.optionGroupService.getByBusinessId(id, page, limit, search);
   }
 
   @Patch(':id')

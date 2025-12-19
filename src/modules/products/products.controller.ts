@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolName } from 'src/types/roles';
 import { RolesGuard } from '../auth/roles.guard';
+import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 
 @Controller('products')
 @UseGuards(JwtAuthGuard)
@@ -52,7 +53,7 @@ export class ProductsController {
 
   @Get('business/:id')
   getProductsByBusinessId(
-    @Param('id', new ParseUUIDPipe()) id: string,
+    @BusinessIdHeader() id: string,
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 10,
     @Query('search') search?: string,

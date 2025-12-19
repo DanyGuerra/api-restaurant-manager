@@ -77,7 +77,7 @@ export class ProductsService {
 
     const [products, total] = await this.productRepository.findAndCount({
       where: whereCondition,
-      relations: ['product_group', 'option_groups', 'option_groups.options'],
+      relations: ['option_groups', 'option_groups.options'],
       skip: (page - 1) * limit,
       take: limit,
     });

@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductGroup } from 'entities/product-group.entity';
-import { Repository } from 'typeorm';
+import { Repository, ILike } from 'typeorm';
 import { CreateProductGroupDto } from './dto/create-product-group.dto';
 import { UpdateProductGroupDto } from './dto/udpate-product-group,dto';
 
@@ -10,7 +10,7 @@ export class ProductGroupService {
   constructor(
     @InjectRepository(ProductGroup)
     private productGroupRepository: Repository<ProductGroup>,
-  ) {}
+  ) { }
 
   async create(productGroupDto: CreateProductGroupDto, businessId: string) {
     const productGroup = this.productGroupRepository.create({
@@ -28,16 +28,35 @@ export class ProductGroupService {
     }
   }
 
-  async getByBusinessId(id: string) {
-    const productGroups = await this.productGroupRepository.find({
-      where: { business: { id } },
-    });
+  async getByBusinessId(
+    businessId: string,
+    page: number = 1,
+    limit: number = 10,
+    search?: string,
+  ) {
+    const whereCondition: any = {
+      business: { id: businessId },
+    };
 
-    if (productGroups.length === 0) {
-      throw new NotFoundException('Product groups not found');
+    if (search) {
+      whereCondition.name = ILike(`%${search}%`);
     }
 
-    return productGroups;
+    const [productGroups, total] = await this.productGroupRepository.findAndCount({
+      where: whereCondition,
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { created_at: 'DESC' },
+    },
+    );
+
+    return {
+      data: productGroups,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async getByProductGroupId(id: string) {

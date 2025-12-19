@@ -65,38 +65,14 @@ export class BusinessService {
       select: {
         id: true,
         name: true,
+        address: true,
         product_group: {
           id: true,
           name: true,
-          products: {
-            id: true,
-            name: true,
-            description: true,
-            base_price: true,
-            available: true,
-            option_groups: {
-              id: true,
-              name: true,
-              min_options: true,
-              max_options: true,
-              options: {
-                id: true,
-                name: true,
-                price: true,
-                available: true,
-              },
-            },
-          },
         },
       },
       relations: {
-        product_group: {
-          products: {
-            option_groups: {
-              options: true,
-            },
-          },
-        },
+        product_group: true,
       },
     });
 

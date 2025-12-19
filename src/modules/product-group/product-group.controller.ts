@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -22,7 +23,7 @@ import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorato
 @Controller('product-group')
 @UseGuards(JwtAuthGuard)
 export class ProductGroupController {
-  constructor(private productGroupService: ProductGroupService) {}
+  constructor(private productGroupService: ProductGroupService) { }
 
   @Post()
   @Roles(RolName.OWNER)
@@ -35,8 +36,13 @@ export class ProductGroupController {
   }
 
   @Get()
-  getByBusinessId(@BusinessIdHeader() id: string) {
-    return this.productGroupService.getByBusinessId(id);
+  getByBusinessId(
+    @BusinessIdHeader() id: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('search') search?: string,
+  ) {
+    return this.productGroupService.getByBusinessId(id, page, limit, search);
   }
 
   @Get(':id')

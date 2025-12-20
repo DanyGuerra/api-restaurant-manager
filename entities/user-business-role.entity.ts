@@ -6,6 +6,7 @@ import {
   Unique,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { Business } from './business.entity';
@@ -28,6 +29,9 @@ export class UserBusinessRole {
 
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updated_at: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 
   @ManyToOne(() => User, (user) => user.businessRoles, {
     onDelete: 'CASCADE',

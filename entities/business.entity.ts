@@ -43,10 +43,12 @@ export class Business {
   @JoinColumn({ name: 'owner_id' })
   owner: User;
 
-  @OneToMany(() => UserBusinessRole, (ur) => ur.business)
+  @OneToMany(() => UserBusinessRole, (ur) => ur.business, { cascade: true })
   userRoles: UserBusinessRole[];
 
-  @OneToMany(() => ProductGroup, (productGroup) => productGroup.business)
+  @OneToMany(() => ProductGroup, (productGroup) => productGroup.business, {
+    cascade: true,
+  })
   product_group: ProductGroup[];
 
   @OneToMany(() => OptionGroup, (optionGroup) => optionGroup.business, {
@@ -54,7 +56,7 @@ export class Business {
   })
   option_groups: OptionGroup[];
 
-  @OneToMany(() => Order, (order) => order.business)
+  @OneToMany(() => Order, (order) => order.business, { cascade: true })
   orders: Order[];
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })

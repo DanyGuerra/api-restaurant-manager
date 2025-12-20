@@ -102,7 +102,10 @@ export class BusinessService {
   }
 
   async deleteById(id: string) {
-    const business = await this.businessRepository.findOne({ where: { id } });
+    const business = await this.businessRepository.findOne({
+      where: { id },
+      relations: ['product_group', 'option_groups', 'orders', 'userRoles'],
+    });
 
     if (!business) {
       throw new NotFoundException(`Business not found`);

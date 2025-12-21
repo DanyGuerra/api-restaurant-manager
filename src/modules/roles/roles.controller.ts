@@ -9,7 +9,7 @@ import { RolName } from 'src/types/roles';
 @Controller('roles')
 @UseGuards(JwtAuthGuard)
 export class RolesController {
-  constructor(private rolesService: RolesService) {}
+  constructor(private rolesService: RolesService) { }
 
   @Get('get-byname')
   async getByName(@Query() query: CreateRolDto) {
@@ -27,7 +27,6 @@ export class RolesController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
   async create(@Body() dto: CreateRolDto): Promise<Role> {
     return this.rolesService.create(dto);
   }

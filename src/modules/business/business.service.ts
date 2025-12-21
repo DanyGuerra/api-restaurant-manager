@@ -91,15 +91,19 @@ export class BusinessService {
     return await business;
   }
 
-  async getByOwnerId(ownerId: string) {
+  async getByUserId(userId: string) {
     const business = await this.businessRepository.find({
-      where: { owner: { id: ownerId } },
+      where: {
+        userRoles: {
+          user_id: userId,
+        },
+      },
     });
-    if (!business) {
-      throw new NotFoundException(`Business not found`);
-    }
+
     return await business;
   }
+
+
 
   async deleteById(id: string) {
     const business = await this.businessRepository.findOne({

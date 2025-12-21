@@ -21,13 +21,17 @@ import { CreateFullOrderDto } from './dto/create-full-order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 import { ConsumptionType, OrderStatus } from 'src/types/order';
+import { RolesGuard } from '../auth/roles.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolName } from 'src/types/roles';
 
 @Controller('orders')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class OrdersController {
     constructor(private readonly ordersService: OrdersService) { }
 
     @Post()
+    @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
     create(
         @Body() createOrderDto: CreateOrderDto,
         @Req() req: any,
@@ -38,6 +42,7 @@ export class OrdersController {
     }
 
     @Post('full')
+    @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
     createFull(
         @Body() createOrderDto: CreateFullOrderDto,
         @Req() req: any,
@@ -52,6 +57,7 @@ export class OrdersController {
     }
 
     @Get('by-business-id')
+    @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
     findByBusinessId(
         @BusinessIdHeader() businessId: string,
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -80,11 +86,13 @@ export class OrdersController {
     }
 
     @Get(':id')
+    @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
     findOne(@Param('id', new ParseUUIDPipe()) id: string) {
         return this.ordersService.findOne(id);
     }
 
     @Patch(':id')
+    @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
     update(
         @Param('id', new ParseUUIDPipe()) id: string,
         @Body() updateOrderDto: UpdateOrderDto,
@@ -93,16 +101,19 @@ export class OrdersController {
     }
 
     @Delete(':id')
+    @Roles(RolName.OWNER, RolName.ADMIN)
     remove(@Param('id', new ParseUUIDPipe()) id: string) {
         return this.ordersService.remove(id);
     }
 
     @Delete('item/:itemId')
+    @Roles(RolName.OWNER, RolName.ADMIN)
     deleteItem(@Param('itemId', new ParseUUIDPipe()) itemId: string) {
         return this.ordersService.removeOrderItem(itemId);
     }
 
     @Delete('item-group/:itemGroupId')
+    @Roles(RolName.OWNER, RolName.ADMIN)
     deleteItemGroup(@Param('itemGroupId', new ParseUUIDPipe()) itemGroupId: string) {
         return this.ordersService.removeOrderItemGroup(itemGroupId);
     }

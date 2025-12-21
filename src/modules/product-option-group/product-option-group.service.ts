@@ -1,7 +1,13 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ProductOptionGroup } from 'entities/product-option-group.entity';
 import { Repository } from 'typeorm';
+import { UpdateProductOptionGroupDto } from './dto/update-product-option-group.dto';
 import { CreateProductOptionGroupDto } from './dto/create-product-option-group.dto';
 
 @Injectable()
@@ -9,7 +15,7 @@ export class ProductOptionGroupService {
   constructor(
     @InjectRepository(ProductOptionGroup)
     private productOptionRepository: Repository<ProductOptionGroup>,
-  ) {}
+  ) { }
 
   async create(createPOG: CreateProductOptionGroupDto) {
     const productOptionGroup = await this.productOptionRepository.create({
@@ -56,5 +62,49 @@ export class ProductOptionGroupService {
     }
 
     return productOptionGroup;
+  }
+  async update(dto: UpdateProductOptionGroupDto) {
+    const currentPOG = await this.productOptionRepository.findOne({
+      where: {
+        product: { id: dto.product_id },
+        option_group: { id: dto.current_option_group_id },
+      },
+    });
+
+    if (!currentPOG) {
+      throw new NotFoundException(
+        `Product option group link not found for product ${dto.product_id} and option group ${dto.current_option_group_id}`,
+      );
+    }
+
+    // Check if new link already exists
+    const newLinkExists = await this.productOptionRepository.findOne({
+      where: {
+        product: { id: dto.product_id },
+        option_group: { id: dto.new_option_group_id },
+      },
+    });
+
+    if (newLinkExists) {
+      throw new ConflictException(
+        `Product option group link already exists for product ${dto.product_id} and option group ${dto.new_option_group_id}`,
+      );
+    }
+
+    try {
+      // Create new link
+      const newPOG = this.productOptionRepository.create({
+        product: { id: dto.product_id },
+        option_group: { id: dto.new_option_group_id },
+      });
+      await this.productOptionRepository.save(newPOG);
+
+      // Remove old link
+      await this.productOptionRepository.remove(currentPOG);
+
+      return newPOG;
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to update product option group');
+    }
   }
 }

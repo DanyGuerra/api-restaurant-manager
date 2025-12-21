@@ -18,20 +18,18 @@ import { CreateProductOptionDto } from './dto/create-product-option.dto';
 import { UpdateProductOptionDto } from './dto/update-product-option.dto';
 
 @Controller('product-option')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ProductOptionController {
-  constructor(private productOptionService: ProductOptionService) {}
+  constructor(private productOptionService: ProductOptionService) { }
 
   @Post()
   @Roles(RolName.OWNER)
-  @UseGuards(RolesGuard)
   create(@Body() createProductOptionDto: CreateProductOptionDto) {
     return this.productOptionService.create(createProductOptionDto);
   }
 
   @Patch(':id')
-  @Roles(RolName.OWNER)
-  @UseGuards(RolesGuard)
+  @Roles(RolName.OWNER, RolName.ADMIN)
   update(
     @Body() updateOptioDto: UpdateProductOptionDto,
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -41,14 +39,12 @@ export class ProductOptionController {
 
   @Delete(':id')
   @Roles(RolName.OWNER)
-  @UseGuards(RolesGuard)
   delete(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.productOptionService.delete(id);
   }
 
   @Get(':id')
-  @Roles(RolName.OWNER)
-  @UseGuards(RolesGuard)
+  @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
   findOne(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.productOptionService.findOne(id);
   }

@@ -11,38 +11,40 @@ import { UserBusinessRolesService } from '../user-business-role/user-business-ro
 import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 
 @Controller('business')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class BusinessController {
   constructor(
     private businessService: BusinessService,
     private userBusinessRolesService: UserBusinessRolesService,
     private userService: UsersService,
-  ) {}
+  ) { }
 
   @Get('owner')
-  async getByOwnerId(@Req() req: any) {
+  async getByUserId(@Req() req: any) {
     const userId = req.user.sub;
-    return this.businessService.getByOwnerId(userId);
+    return this.businessService.getByUserId(userId);
   }
 
   @Get('products')
+  @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
   getFullBusiness(@BusinessIdHeader() id: string) {
     return this.businessService.getBusinessFullStructure(id);
   }
 
   @Get()
+  @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
   async getById(@BusinessIdHeader() id: string) {
     return this.businessService.getById(id);
   }
 
   @Put()
-  @Roles(RolName.OWNER)
-  @UseGuards(RolesGuard)
+  @Roles(RolName.OWNER, RolName.ADMIN)
   updateBusiness(@BusinessIdHeader() id: string, @Body() updateBusiness: UpdateBusinessDto) {
     return this.businessService.updateBusiness(id, updateBusiness);
   }
 
   @Post()
+  @Roles(RolName.OWNER, RolName.ADMIN)
   async create(@Body() createBusiness: CreateBusinessDto, @Req() req: any) {
     const userId = req.user.sub;
     await this.userService.findById(userId);
@@ -52,14 +54,8 @@ export class BusinessController {
     return await this.businessService.save(business);
   }
 
-  @Get('all')
-  getAll() {
-    return this.businessService.getAll();
-  }
-
   @Delete()
   @Roles(RolName.OWNER)
-  @UseGuards(RolesGuard)
   delete(@BusinessIdHeader() id: string) {
     return this.businessService.deleteById(id);
   }

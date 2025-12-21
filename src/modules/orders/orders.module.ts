@@ -7,9 +7,10 @@ import { ProductOption } from 'entities/product-option.entity';
 import { Order } from 'entities/order.entity';
 import { OrderItem } from 'entities/order-item.entity';
 import { OrderItemGroup } from 'entities/order-item-group.entity';
+import { UserBusinessRole } from 'entities/user-business-role.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Product, ProductOption, OrderItem, OrderItemGroup])],
+  imports: [TypeOrmModule.forFeature([Order, Product, ProductOption, OrderItem, OrderItemGroup, UserBusinessRole])],
   controllers: [OrdersController],
   providers: [OrdersService],
   exports: [OrdersService],

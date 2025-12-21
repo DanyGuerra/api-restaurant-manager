@@ -20,20 +20,18 @@ import { RolesGuard } from '../auth/roles.guard';
 import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 
 @Controller('products')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ProductsController {
   constructor(private productService: ProductsService) { }
 
   @Post()
   @Roles(RolName.OWNER)
-  @UseGuards(RolesGuard)
   createProduct(@Body() createProductDto: CreateProductDto[]) {
     return this.productService.createProduct(createProductDto);
   }
 
   @Patch(':id')
-  @Roles(RolName.OWNER)
-  @UseGuards(RolesGuard)
+  @Roles(RolName.OWNER, RolName.ADMIN)
   updateProduct(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -42,16 +40,19 @@ export class ProductsController {
   }
 
   @Get(':id')
+  @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
   getById(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.productService.getProductById(id);
   }
 
   @Get()
+  @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
   getByProductId(@Query('product_group_id', new ParseUUIDPipe()) id: string) {
     return this.productService.getByProductGroupId(id);
   }
 
   @Get('business/:id')
+  @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
   getProductsByBusinessId(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Query('page') page: number = 1,
@@ -63,7 +64,6 @@ export class ProductsController {
 
   @Delete(':id')
   @Roles(RolName.OWNER)
-  @UseGuards(RolesGuard)
   deleteProductById(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.productService.deleteById(id);
   }

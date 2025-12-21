@@ -20,23 +20,24 @@ import { UpdateOptionGroup } from './dto/update-option-group.dto';
 import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 
 @Controller('option-group')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class OptionGroupController {
   constructor(private optionGroupService: OptionGroupService) { }
 
   @Post()
   @Roles(RolName.OWNER)
-  @UseGuards(RolesGuard)
   create(@BusinessIdHeader() businessId: string, @Body() createOptionGroup: CreateOptionGroup) {
     return this.optionGroupService.create(createOptionGroup, businessId);
   }
 
   @Get(':id')
+  @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
   getById(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.optionGroupService.getById(id);
   }
 
   @Get('business/:businessId')
+  @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
   getByBusinessId(
     @Param('businessId', new ParseUUIDPipe()) id: string,
     @Query('page') page: number = 1,
@@ -47,6 +48,7 @@ export class OptionGroupController {
   }
 
   @Patch(':id')
+  @Roles(RolName.OWNER, RolName.ADMIN)
   updateById(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateOptionGroup: UpdateOptionGroup,
@@ -55,6 +57,7 @@ export class OptionGroupController {
   }
 
   @Delete(':id')
+  @Roles(RolName.OWNER)
   deleteById(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.optionGroupService.deleteById(id);
   }

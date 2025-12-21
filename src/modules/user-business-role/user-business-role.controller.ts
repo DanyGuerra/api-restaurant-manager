@@ -11,44 +11,38 @@ import {
 } from '@nestjs/common';
 import { UserBusinessRolesService } from './user-business-role.service';
 import { AssignRoleDto } from './dto/create-business-user-role.dto';
-import { GetUserDto } from './dto/remove-user-business.dto';
 import { Roles } from '../auth/roles.decorator';
 import { RolName } from 'src/types/roles';
 import { RolesGuard } from '../auth/roles.guard';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 
 @Controller('user-business-roles')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UserBusinessRolesController {
   constructor(private readonly ubrService: UserBusinessRolesService) { }
 
-  @Post()
+  @Post("user/:id")
   @Roles(RolName.OWNER)
-  async assignRole(@Body() body: AssignRoleDto) {
-    return this.ubrService.assignRole(body.user_id, body.business_id, body.role_id);
-  }
-
-  @Get('business/:id')
-  @Roles(RolName.OWNER)
-  async getRolesByBusiness(@Param('id') businessId: string) {
-    return this.ubrService.findByBusiness(businessId);
+  async assignRole(@BusinessIdHeader() businessId: string, @Param('id') userId: string, @Body() body: AssignRoleDto) {
+    return this.ubrService.assignRole(userId, businessId, body.role_id);
   }
 
   @Get()
   @Roles(RolName.OWNER)
-  async getRolesByBusinessAndUser(@Query() querys: GetUserDto) {
-    return this.ubrService.findByBusinessAndUser(querys.user_id, querys.business_id);
+  async getRolesByBusiness(@BusinessIdHeader() businessId: string) {
+    return this.ubrService.findByBusiness(businessId);
   }
 
-  @Patch()
+  @Get("user/:id")
   @Roles(RolName.OWNER)
-  async updateRole(@Body() body: AssignRoleDto) {
-    return this.ubrService.updateRole(body.user_id, body.business_id, body.role_id);
+  async getRolesByBusinessAndUser(@BusinessIdHeader() businessId: string, @Param('id') userId: string) {
+    return this.ubrService.findByBusinessAndUser(userId, businessId);
   }
 
-  @Delete()
+  @Delete("user/:id")
   @Roles(RolName.OWNER)
-  async removeUserFromBusiness(@Body() body: GetUserDto) {
-    return this.ubrService.removeUserFromBusiness(body.user_id, body.business_id);
+  async removeUserFromBusiness(@BusinessIdHeader() businessId: string, @Param('id') userId: string) {
+    return this.ubrService.removeUserFromBusiness(userId, businessId);
   }
 }

@@ -1,15 +1,8 @@
-import { IsUUID, IsNotEmpty, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
+import { RolId } from 'src/types/roles';
 
 export class AssignRoleDto {
-  @IsUUID()
-  @IsNotEmpty()
-  user_id: string;
-
-  @IsUUID()
-  @IsNotEmpty()
-  business_id: string;
-
   @IsNumber()
   @IsNotEmpty()
-  role_id: number;
+  role_id: RolId.ADMIN | RolId.WAITER;
 }

@@ -8,7 +8,7 @@ export class UserBusinessRolesService {
   constructor(
     @InjectRepository(UserBusinessRole)
     private readonly ubrRepository: Repository<UserBusinessRole>,
-  ) {}
+  ) { }
 
   async assignRole(userId: string, businessId: string, roleId: number) {
     const relation = this.ubrRepository.create({

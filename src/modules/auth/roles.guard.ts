@@ -12,7 +12,7 @@ export class RolesGuard implements CanActivate {
     private reflector: Reflector,
     @InjectRepository(UserBusinessRole)
     private readonly ubrRepo: Repository<UserBusinessRole>,
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.getAllAndOverride<RolName[]>(ROLES_KEY, [
@@ -44,7 +44,7 @@ export class RolesGuard implements CanActivate {
     // Role validation
     const hasRole = requiredRoles.includes(relation.role.name);
     if (!hasRole) {
-      throw new ForbiddenException(`You need one of the roles: ${requiredRoles.join(', ')}`);
+      throw new ForbiddenException("You do not have permission to perform this action");
     }
 
     return true;

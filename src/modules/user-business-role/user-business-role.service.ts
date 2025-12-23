@@ -1,13 +1,15 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserBusinessRole } from 'entities/user-business-role.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class UserBusinessRolesService {
   constructor(
     @InjectRepository(UserBusinessRole)
     private readonly ubrRepository: Repository<UserBusinessRole>,
+    private readonly usersService: UsersService,
   ) { }
 
   async assignRole(userId: string, businessId: string, roleId: number) {
@@ -20,10 +22,34 @@ export class UserBusinessRolesService {
     return this.ubrRepository.save(relation);
   }
 
+  async assignRoleByEmail(email: string, businessId: string, roleId: number) {
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException("Invalid user email");
+    }
+
+    const existingRole = await this.ubrRepository.findOne({
+      where: { user_id: user.id, business_id: businessId },
+    });
+
+    if (existingRole) {
+      throw new BadRequestException('User already has a role in this business');
+    }
+
+    return this.assignRole(user.id, businessId, roleId);
+  }
+
   async findByBusiness(businessId: string) {
     return this.ubrRepository.find({
       where: { business_id: businessId },
-      relations: ['role'],
+      relations: ['user', 'role'],
+      select: {
+        user: {
+          id: true,
+          email: true,
+          name: true,
+        },
+      },
     });
   }
 
@@ -72,12 +98,14 @@ export class UserBusinessRolesService {
       throw new ConflictException('Cannot remove any role (only OWNER exists)');
     }
 
-    const removed = rolesToRemove.map((r) =>
-      this.ubrRepository.delete({
-        user_id: r.user_id,
-        business_id: r.business_id,
-        role_id: r.role_id,
-      }),
+    const removed = await Promise.all(
+      rolesToRemove.map((r) =>
+        this.ubrRepository.delete({
+          user_id: r.user_id,
+          business_id: r.business_id,
+          role_id: r.role_id,
+        }),
+      ),
     );
 
     return removed;

@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { UserBusinessRolesService } from './user-business-role.service';
 import { AssignRoleDto } from './dto/create-business-user-role.dto';
+import { AssignRoleByEmailDto } from './dto/assign-role-by-email.dto';
 import { Roles } from '../auth/roles.decorator';
 import { RolName } from 'src/types/roles';
 import { RolesGuard } from '../auth/roles.guard';
@@ -26,6 +27,15 @@ export class UserBusinessRolesController {
   @Roles(RolName.OWNER)
   async assignRole(@BusinessIdHeader() businessId: string, @Param('id') userId: string, @Body() body: AssignRoleDto) {
     return this.ubrService.assignRole(userId, businessId, body.role_id);
+  }
+
+  @Post('user/email/add')
+  @Roles(RolName.OWNER)
+  async assignRoleByEmail(
+    @BusinessIdHeader() businessId: string,
+    @Body() body: AssignRoleByEmailDto,
+  ) {
+    return this.ubrService.assignRoleByEmail(body.email, businessId, body.role_id);
   }
 
   @Get()

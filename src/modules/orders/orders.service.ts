@@ -192,6 +192,8 @@ export class OrdersService {
   private getOrderQueryBuilder() {
     return this.orderRepository
       .createQueryBuilder('order')
+      .leftJoin('order.user', 'user')
+      .addSelect(['user.id', 'user.name'])
       .leftJoinAndSelect('order.itemGroups', 'itemGroups')
       .leftJoinAndSelect('itemGroups.items', 'items')
       .leftJoin('items.product', 'product', 'product.deleted_at IS NOT NULL OR product.deleted_at IS NULL')

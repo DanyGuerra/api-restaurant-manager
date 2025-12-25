@@ -38,7 +38,7 @@ export class BusinessController {
   }
 
   @Put()
-  @Roles(RolName.OWNER, RolName.ADMIN)
+  @Roles(RolName.OWNER)
   updateBusiness(@BusinessIdHeader() id: string, @Body() updateBusiness: UpdateBusinessDto) {
     return this.businessService.updateBusiness(id, updateBusiness);
   }

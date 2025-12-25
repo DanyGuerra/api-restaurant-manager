@@ -1,12 +1,9 @@
 import {
-  IsBoolean,
   IsDateString,
   IsEnum,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
 } from 'class-validator';
 import { ConsumptionType, OrderStatus } from 'src/types/order';
 
@@ -34,6 +31,10 @@ export class CreateOrderDto {
   @IsEnum(ConsumptionType)
   @IsOptional()
   consumption_type?: ConsumptionType;
+
+  @IsNumber()
+  @IsOptional()
+  table_number?: number;
 
   @IsString()
   @IsOptional()

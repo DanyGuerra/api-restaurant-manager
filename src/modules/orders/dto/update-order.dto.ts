@@ -27,6 +27,10 @@ export class UpdateOrderDto {
   consumption_type?: ConsumptionType;
 
   @IsOptional()
+  @IsNumber()
+  table_number?: number;
+
+  @IsOptional()
   @IsString()
   notes?: string;
 }

@@ -92,7 +92,7 @@ export class OrdersController {
     }
 
     @Patch(':id')
-    @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
+    @Roles(RolName.OWNER, RolName.ADMIN)
     update(
         @Param('id', new ParseUUIDPipe()) id: string,
         @Body() updateOrderDto: UpdateOrderDto,

@@ -29,8 +29,7 @@ export class Order {
   business: Business;
 
   @ManyToOne(() => User, (user) => user.orders)
-  @JoinColumn({ name: 'user_id' })
-  @Exclude()
+  @JoinColumn({ name: 'user' })
   user: User;
 
   @Column('decimal', { precision: 10, scale: 2, default: 0.0 })
@@ -64,6 +63,9 @@ export class Order {
     default: ConsumptionType.DINE_IN,
   })
   consumption_type: ConsumptionType;
+
+  @Column({ type: 'int', nullable: true })
+  table_number: number;
 
   @Column({ type: 'varchar', nullable: true })
   notes: string;

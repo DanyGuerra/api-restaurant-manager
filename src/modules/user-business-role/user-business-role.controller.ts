@@ -45,7 +45,7 @@ export class UserBusinessRolesController {
   }
 
   @Get("user/:id")
-  @Roles(RolName.OWNER)
+  @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
   async getRolesByBusinessAndUser(@BusinessIdHeader() businessId: string, @Param('id') userId: string) {
     return this.ubrService.findByBusinessAndUser(userId, businessId);
   }

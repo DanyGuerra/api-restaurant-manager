@@ -102,7 +102,7 @@ export class ProductGroupService {
     }
 
     try {
-      await this.productGroupRepository.remove(productGroup);
+      await this.productGroupRepository.softRemove(productGroup);
       return {
         message: `Product group "${productGroup.name}" deleted successfully`,
       };

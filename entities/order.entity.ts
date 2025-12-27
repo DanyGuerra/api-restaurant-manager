@@ -1,13 +1,13 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  OneToMany,
-  CreateDateColumn,
-  UpdateDateColumn,
-  JoinColumn,
-  DeleteDateColumn,
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    ManyToOne,
+    OneToMany,
+    CreateDateColumn,
+    UpdateDateColumn,
+    JoinColumn,
+    DeleteDateColumn,
 } from 'typeorm';
 import { Business } from './business.entity';
 import { User } from './user.entity';
@@ -18,70 +18,73 @@ import { Exclude } from 'class-transformer';
 
 @Entity('orders')
 export class Order {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+    @PrimaryGeneratedColumn('uuid')
+    id: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  customer_name: string;
+    @Column({ type: 'varchar', nullable: true })
+    customer_name: string;
 
-  @ManyToOne(() => Business, (business) => business.orders, { nullable: false })
-  @JoinColumn({ name: 'business_id' })
-  business: Business;
+    @ManyToOne(() => Business, (business) => business.orders, { nullable: false })
+    @JoinColumn({ name: 'business_id' })
+    business: Business;
 
-  @ManyToOne(() => User, (user) => user.orders)
-  @JoinColumn({ name: 'user' })
-  user: User;
+    @ManyToOne(() => User, (user) => user.orders)
+    @JoinColumn({ name: 'user' })
+    user: User;
 
-  @Column('decimal', { precision: 10, scale: 2, default: 0.0 })
-  total: number;
+    @Column('decimal', { precision: 10, scale: 2, default: 0.0 })
+    total: number;
 
-  @Column('decimal', { precision: 10, scale: 2, default: null })
-  amount_paid: number;
+    @Column('decimal', { precision: 10, scale: 2, default: null })
+    amount_paid: number;
 
-  @Column('decimal', { precision: 10, scale: 2, default: null })
-  change: number;
+    @Column('decimal', { precision: 10, scale: 2, default: null })
+    change: number;
 
-  @Column({
-    type: 'enum',
-    enum: OrderStatus,
-    default: OrderStatus.PENDING,
-  })
-  status: OrderStatus;
+    @Column({
+        type: 'enum',
+        enum: OrderStatus,
+        default: OrderStatus.PENDING,
+    })
+    status: OrderStatus;
 
-  @Column({ default: false })
-  paid: boolean;
+    @Column({ default: false })
+    paid: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
-  delivered_at: Date;
+    @Column({ type: 'timestamp', nullable: true })
+    delivered_at: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
-  scheduled_at: Date;
+    @Column({ type: 'timestamp', nullable: true })
+    scheduled_at: Date;
 
-  @Column({
-    type: 'enum',
-    enum: ConsumptionType,
-    default: ConsumptionType.DINE_IN,
-  })
-  consumption_type: ConsumptionType;
+    @Column({
+        type: 'enum',
+        enum: ConsumptionType,
+        default: ConsumptionType.DINE_IN,
+    })
+    consumption_type: ConsumptionType;
 
-  @Column({ type: 'int', nullable: true })
-  table_number: number;
+    @Column({ type: 'int', nullable: true })
+    table_number: number;
 
-  @Column({ type: 'varchar', nullable: true })
-  notes: string;
+    @Column({ type: 'int', nullable: true })
+    order_number: number;
 
-  @CreateDateColumn({ type: 'timestamp', default: () => 'NOW()' })
-  created_at: Date;
+    @Column({ type: 'varchar', nullable: true })
+    notes: string;
 
-  @UpdateDateColumn({ type: 'timestamp', nullable: true })
-  updated_at: Date;
+    @CreateDateColumn({ type: 'timestamp', default: () => 'NOW()' })
+    created_at: Date;
 
-  @OneToMany(() => OrderItemGroup, (group) => group.order, { cascade: true })
-  itemGroups: OrderItemGroup[];
+    @UpdateDateColumn({ type: 'timestamp', nullable: true })
+    updated_at: Date;
 
-  @OneToMany(() => OrderLabel, (ol) => ol.order, { cascade: true })
-  orderLabels?: OrderLabel[];
+    @OneToMany(() => OrderItemGroup, (group) => group.order, { cascade: true })
+    itemGroups: OrderItemGroup[];
 
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
+    @OneToMany(() => OrderLabel, (ol) => ol.order, { cascade: true })
+    orderLabels?: OrderLabel[];
+
+    @DeleteDateColumn({ type: 'timestamp', nullable: true })
+    deleted_at: Date;
 }

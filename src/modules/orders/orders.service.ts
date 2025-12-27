@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
-import { Order } from 'entities/order.entity';
+
 import { Product } from 'entities/product.entity';
 import { ProductOption } from 'entities/product-option.entity';
 import { OrderItem } from 'entities/order-item.entity';
 import { OrderItemGroup } from 'entities/order-item-group.entity';
+import { Order } from 'entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateFullOrderDto } from './dto/create-full-order.dto';
@@ -28,13 +29,27 @@ export class OrdersService {
   ) { }
 
   async create(createOrderDto: CreateOrderDto, userId: string, businessId: string) {
+    const orderNumber = await this.getNextOrderNumber(businessId);
+
     const order = this.orderRepository.create({
       ...createOrderDto,
       business: { id: businessId },
       user: { id: userId },
+      order_number: orderNumber,
     });
 
     return await this.orderRepository.save(order);
+  }
+
+  private async getNextOrderNumber(businessId: string): Promise<number> {
+    const maxOrder = await this.orderRepository
+      .createQueryBuilder('order')
+      .where('order.business = :businessId', { businessId })
+      .orderBy('order.order_number', 'DESC')
+      .select(['order.order_number'])
+      .getOne();
+
+    return (maxOrder?.order_number || 0) + 1;
   }
 
   async createFullOrder(
@@ -120,6 +135,8 @@ export class OrdersService {
       throw new BadRequestException('Amount paid is less than the total');
     }
 
+    const orderNumber = await this.getNextOrderNumber(businessId);
+
     const order = this.orderRepository.create({
       ...orderData,
       business: { id: businessId },
@@ -129,6 +146,7 @@ export class OrdersService {
       amount_paid: orderData.amount_paid,
       change: amount_paid ? amount_paid - orderTotal : undefined,
       paid: amount_paid ? amount_paid > orderTotal : undefined,
+      order_number: orderNumber,
     });
 
     return await this.orderRepository.save(order);

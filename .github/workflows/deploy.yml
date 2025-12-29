@@ -16,9 +16,9 @@ jobs:
       - name: SSH and deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          host: ${{ secrets.EC2_HOST_TEST }}
+          username: ${{ secrets.EC2_USER_TEST }}
+          key: ${{ secrets.EC2_SSH_KEY_TEST }}
           script: |
             export PATH=$PATH:/usr/local/bin
 

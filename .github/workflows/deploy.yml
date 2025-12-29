@@ -22,7 +22,7 @@ jobs:
           script: |
             export PATH=$PATH:/usr/local/bin
 
-            cd /var/www/api
+            cd /var/www/api-restaurant-manager
 
             git checkout test
             git pull origin test

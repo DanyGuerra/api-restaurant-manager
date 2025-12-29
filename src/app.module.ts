@@ -64,6 +64,9 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
     AuthModule,
     UsersModule,
@@ -82,4 +85,4 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
     OrderItemOptionsModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }

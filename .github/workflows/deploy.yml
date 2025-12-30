@@ -1,9 +1,9 @@
-name: Deploy to EC2 (test)
+name: Deploy to EC2 (main)
 
 on:
   push:
     branches:
-      - test
+      - main
 
 jobs:
   deploy:
@@ -24,11 +24,11 @@ jobs:
 
             cd /var/www/api-restaurant-manager
 
-            git checkout test
-            git pull origin test
+            git checkout main
+            git pull origin main
 
             npm install
             npm run build
 
-            pm2 start ecosystem.config.js --env test || pm2 reload ecosystem.config.js --env test
+            pm2 start ecosystem.config.js --env production || pm2 reload ecosystem.config.js --env production
             pm2 save

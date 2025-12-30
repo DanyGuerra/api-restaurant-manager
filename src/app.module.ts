@@ -1,5 +1,6 @@
-import { Module, NestModule, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
-import { ApiKeyMiddleware } from './middleware/api-key.middleware';
+import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ApiKeyGuard } from './auth/api-key.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -37,7 +38,14 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
 
 @Module({
   controllers: [AppController, HelpController, ProductOptionGroupController],
-  providers: [AppService, ProductOptionGroupService],
+  providers: [
+    AppService,
+    ProductOptionGroupService,
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
+    },
+  ],
   imports: [
     TypeOrmModule.forFeature([
       Business,
@@ -86,26 +94,4 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
     OrderItemOptionsModule,
   ],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(ApiKeyMiddleware)
-      .forRoutes(
-        { path: 'help', method: RequestMethod.ALL },
-        { path: 'order-items', method: RequestMethod.ALL },
-        { path: 'orders', method: RequestMethod.ALL },
-        { path: 'user-business-roles', method: RequestMethod.ALL },
-        { path: 'product-option', method: RequestMethod.ALL },
-        { path: 'order-item-groups', method: RequestMethod.ALL },
-        { path: 'product-group', method: RequestMethod.ALL },
-        { path: 'order-item-options', method: RequestMethod.ALL },
-        { path: 'business', method: RequestMethod.ALL },
-        { path: 'roles', method: RequestMethod.ALL },
-        { path: 'users', method: RequestMethod.ALL },
-        { path: 'auth', method: RequestMethod.ALL },
-        { path: 'products', method: RequestMethod.ALL },
-        { path: 'product-option-group', method: RequestMethod.ALL },
-        { path: 'option-group', method: RequestMethod.ALL },
-      );
-  }
-}
+export class AppModule { }

@@ -90,6 +90,22 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(ApiKeyMiddleware)
-      .forRoutes({ path: '*', method: RequestMethod.ALL });
+      .forRoutes(
+        { path: 'help', method: RequestMethod.ALL },
+        { path: 'order-items', method: RequestMethod.ALL },
+        { path: 'orders', method: RequestMethod.ALL },
+        { path: 'user-business-roles', method: RequestMethod.ALL },
+        { path: 'product-option', method: RequestMethod.ALL },
+        { path: 'order-item-groups', method: RequestMethod.ALL },
+        { path: 'product-group', method: RequestMethod.ALL },
+        { path: 'order-item-options', method: RequestMethod.ALL },
+        { path: 'business', method: RequestMethod.ALL },
+        { path: 'roles', method: RequestMethod.ALL },
+        { path: 'users', method: RequestMethod.ALL },
+        { path: 'auth', method: RequestMethod.ALL },
+        { path: 'products', method: RequestMethod.ALL },
+        { path: 'product-option-group', method: RequestMethod.ALL },
+        { path: 'option-group', method: RequestMethod.ALL },
+      );
   }
 }

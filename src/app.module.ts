@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ApiKeyGuard } from './auth/api-key.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -36,7 +38,14 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
 
 @Module({
   controllers: [AppController, HelpController, ProductOptionGroupController],
-  providers: [AppService, ProductOptionGroupService],
+  providers: [
+    AppService,
+    ProductOptionGroupService,
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
+    },
+  ],
   imports: [
     TypeOrmModule.forFeature([
       Business,

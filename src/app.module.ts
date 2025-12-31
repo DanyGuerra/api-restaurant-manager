@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule, LoggerErrorInterceptor } from 'nestjs-pino';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_GUARD } from '@nestjs/core';
 import { LoggerContextInterceptor } from './interceptors/logger-context.interceptor';
+import { ApiKeyGuard } from './auth/api-key.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -42,6 +43,10 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
   providers: [
     AppService,
     ProductOptionGroupService,
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggerErrorInterceptor,

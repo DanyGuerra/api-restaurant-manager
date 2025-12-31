@@ -78,9 +78,9 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,
-      // ssl: {
-      //   rejectUnauthorized: false,
-      // },
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
     AuthModule,
     UsersModule,

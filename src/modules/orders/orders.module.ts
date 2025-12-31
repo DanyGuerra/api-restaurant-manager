@@ -9,10 +9,19 @@ import { OrderItem } from 'entities/order-item.entity';
 import { OrderItemGroup } from 'entities/order-item-group.entity';
 import { UserBusinessRole } from 'entities/user-business-role.entity';
 
+import { AuthModule } from '../auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+
+import { OrdersGateway } from './orders.gateway';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([Order, Product, ProductOption, OrderItem, OrderItemGroup, UserBusinessRole])],
+  imports: [
+    AuthModule,
+    ConfigModule,
+    TypeOrmModule.forFeature([Order, Product, ProductOption, OrderItem, OrderItemGroup, UserBusinessRole]),
+  ],
   controllers: [OrdersController],
-  providers: [OrdersService],
+  providers: [OrdersService, OrdersGateway],
   exports: [OrdersService],
 })
 export class OrdersModule { }

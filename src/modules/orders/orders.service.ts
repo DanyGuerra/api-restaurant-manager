@@ -12,6 +12,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateFullOrderDto } from './dto/create-full-order.dto';
 import { CartItemDto } from './dto/cart-item.dto';
 import { ConsumptionType, OrderStatus } from 'src/types/order';
+import { OrdersGateway } from './orders.gateway';
 
 @Injectable()
 export class OrdersService {
@@ -26,6 +27,7 @@ export class OrdersService {
     private orderItemRepository: Repository<OrderItem>,
     @InjectRepository(OrderItemGroup)
     private orderItemGroupRepository: Repository<OrderItemGroup>,
+    private readonly ordersGateway: OrdersGateway,
   ) { }
 
   async create(createOrderDto: CreateOrderDto, userId: string, businessId: string) {
@@ -38,7 +40,9 @@ export class OrdersService {
       order_number: orderNumber,
     });
 
-    return await this.orderRepository.save(order);
+    const savedOrder = await this.orderRepository.save(order);
+    this.ordersGateway.server.to(businessId).emit('orderCreated', savedOrder);
+    return savedOrder;
   }
 
   private async getNextOrderNumber(businessId: string): Promise<number> {
@@ -149,7 +153,9 @@ export class OrdersService {
       order_number: orderNumber,
     });
 
-    return await this.orderRepository.save(order);
+    const savedOrder = await this.orderRepository.save(order);
+    this.ordersGateway.server.to(businessId).emit('orderCreated', savedOrder.status);
+    return savedOrder;
   }
 
   async findByBusinessId(
@@ -222,7 +228,7 @@ export class OrdersService {
       .leftJoinAndSelect('order.orderLabels', 'orderLabels');
   }
 
-  async update(id: string, updateOrderDto: UpdateOrderDto) {
+  async update(id: string, updateOrderDto: UpdateOrderDto, businessId: string) {
     const order = await this.findOne(id);
 
     Object.assign(order, updateOrderDto);
@@ -236,18 +242,26 @@ export class OrdersService {
       order.paid = updateOrderDto.amount_paid >= order.total;
     }
 
-    return await this.orderRepository.save(order);
+    const savedOrder = await this.orderRepository.save(order);
+
+    this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder.status);
+
+    return savedOrder;
   }
 
-  async remove(id: string) {
+  async remove(id: string, businessId: string) {
     const order = await this.findOne(id);
-    return await this.orderRepository.softRemove(order);
+
+    const removedOrder = await this.orderRepository.softRemove(order);
+
+    this.ordersGateway.server.to(businessId).emit('orderDeleted', removedOrder.status);
+    return removedOrder;
   }
 
   async recalculateOrderTotals(orderId: string) {
     const order = await this.orderRepository.findOne({
       where: { id: orderId },
-      relations: ['itemGroups', 'itemGroups.items'],
+      relations: ['itemGroups', 'itemGroups.items', 'business'],
     });
 
     if (!order) {
@@ -272,7 +286,11 @@ export class OrdersService {
       order.paid = order.amount_paid >= orderTotal;
     }
 
-    return await this.orderRepository.save(order);
+    const savedOrder = await this.orderRepository.save(order);
+    if (savedOrder.business?.id) {
+      this.ordersGateway.server.to(savedOrder.business.id).emit('orderUpdated', savedOrder);
+    }
+    return savedOrder;
   }
 
   async removeOrderItem(itemId: string) {

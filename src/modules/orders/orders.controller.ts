@@ -94,16 +94,17 @@ export class OrdersController {
     @Patch(':id')
     @Roles(RolName.OWNER, RolName.ADMIN)
     update(
+        @BusinessIdHeader() businessId: string,
         @Param('id', new ParseUUIDPipe()) id: string,
         @Body() updateOrderDto: UpdateOrderDto,
     ) {
-        return this.ordersService.update(id, updateOrderDto);
+        return this.ordersService.update(id, updateOrderDto, businessId);
     }
 
     @Delete(':id')
     @Roles(RolName.OWNER, RolName.ADMIN)
-    remove(@Param('id', new ParseUUIDPipe()) id: string) {
-        return this.ordersService.remove(id);
+    remove(@Param('id', new ParseUUIDPipe()) id: string, @BusinessIdHeader() businessId: string) {
+        return this.ordersService.remove(id, businessId);
     }
 
     @Delete('item/:itemId')

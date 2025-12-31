@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
+import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
     cors: {
@@ -16,6 +17,8 @@ import { Server, Socket } from 'socket.io';
     },
 })
 export class OrdersGateway implements OnGatewayConnection, OnGatewayDisconnect {
+    private readonly logger = new Logger(OrdersGateway.name);
+
     @WebSocketServer()
     server: Server;
 
@@ -30,36 +33,36 @@ export class OrdersGateway implements OnGatewayConnection, OnGatewayDisconnect {
                 (client.handshake.query?.token as string) ||
                 client.handshake.headers.authorization;
             if (!token) {
-                console.log(`Client ${client.id} missing auth token, disconnecting...`);
+                this.logger.warn({ clientId: client.id }, 'Client missing auth token, disconnecting...');
                 client.disconnect();
                 return;
             }
 
             const payload = this.jwtService.verify(token);
-            console.log(`Client connected: ${client.id}, User: ${payload.sub}`);
+            this.logger.log({ clientId: client.id, userId: payload.sub }, 'Client connected');
 
             client.data.user = payload;
         } catch (e) {
-            console.log(`Client ${client.id} failed auth, disconnecting...`, e.message);
+            this.logger.error({ err: e, clientId: client.id }, 'Client failed auth, disconnecting...');
             client.disconnect();
         }
     }
 
     handleDisconnect(client: Socket) {
-        console.log(`Client disconnected: ${client.id}`);
+        this.logger.log({ clientId: client.id }, 'Client disconnected');
     }
 
     @SubscribeMessage('joinBusiness')
     handleJoinBusiness(client: Socket, businessId: string) {
         client.join(businessId);
-        console.log(`Client ${client.id} joined business room: ${businessId}`);
+        this.logger.log({ clientId: client.id, businessId }, 'Client joined business room');
         return { event: 'joinedBusiness', data: businessId };
     }
 
     @SubscribeMessage('leaveBusiness')
     handleLeaveBusiness(client: Socket, businessId: string) {
         client.leave(businessId);
-        console.log(`Client ${client.id} left business room: ${businessId}`);
+        this.logger.log({ clientId: client.id, businessId }, 'Client left business room');
         return { event: 'leftBusiness', data: businessId };
     }
 }

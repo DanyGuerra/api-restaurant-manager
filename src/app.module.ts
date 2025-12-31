@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
-import { ApiKeyGuard } from './auth/api-key.guard';
+import { LoggerModule, LoggerErrorInterceptor } from 'nestjs-pino';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggerContextInterceptor } from './interceptors/logger-context.interceptor';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -42,8 +43,12 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
     AppService,
     ProductOptionGroupService,
     {
-      provide: APP_GUARD,
-      useClass: ApiKeyGuard,
+      provide: APP_INTERCEPTOR,
+      useClass: LoggerErrorInterceptor,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggerContextInterceptor,
     },
   ],
   imports: [
@@ -92,6 +97,38 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
     OrderItemGroupsModule,
     OrderItemsModule,
     OrderItemOptionsModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        customSuccessMessage: (req, res) => {
+          return 'Request completed';
+        },
+        customErrorMessage: (req, res, err) => {
+          return 'Request failed';
+        },
+        customLogLevel: (req, res, err) => {
+          if (res.statusCode >= 400 || err) {
+            return 'error';
+          }
+          return 'info';
+        },
+        serializers: {
+          err: (err) => {
+            return {
+              type: err.type,
+              message: err.message,
+              stack: err.stack,
+              response: (err as any).response,
+            };
+          },
+        },
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            singleLine: true,
+          },
+        },
+      },
+    }),
   ],
 })
 export class AppModule { }

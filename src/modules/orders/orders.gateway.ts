@@ -10,8 +10,9 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
     cors: {
+        path: '/socket.io',
         origin: "*",
-        credentials: true,
+        credentials: false,
     },
 })
 export class OrdersGateway implements OnGatewayConnection, OnGatewayDisconnect {

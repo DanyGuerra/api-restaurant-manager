@@ -45,21 +45,22 @@ export class OptionGroupService {
     limit: number = 10,
     search?: string,
   ) {
-    const whereCondition: any = {
-      business: { id: businessId },
-    };
+    const queryBuilder = this.optionGroupRepository
+      .createQueryBuilder('optionGroup')
+      .leftJoinAndSelect('optionGroup.options', 'option')
+      .where('optionGroup.business_id = :businessId', { businessId })
+      .orderBy('optionGroup.created_at', 'DESC')
+      .addOrderBy('option.popularity', 'DESC', 'NULLS LAST')
+      .skip((page - 1) * limit)
+      .take(limit);
 
     if (search) {
-      whereCondition.name = ILike(`%${search}%`);
+      queryBuilder.andWhere('optionGroup.name ILIKE :search', {
+        search: `%${search}%`,
+      });
     }
 
-    const [optionGroups, total] = await this.optionGroupRepository.findAndCount({
-      where: whereCondition,
-      relations: ['options'],
-      skip: (page - 1) * limit,
-      take: limit,
-      order: { created_at: 'DESC' },
-    });
+    const [optionGroups, total] = await queryBuilder.getManyAndCount();
 
     return {
       data: optionGroups,

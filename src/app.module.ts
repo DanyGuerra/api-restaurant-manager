@@ -38,7 +38,7 @@ import { Label } from 'entities/label.entity';
 import { OrderLabel } from 'entities/order-label.entity';
 import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-groups.module';
 import { ScheduleModule } from '@nestjs/schedule';
-import { TasksModule } from './modules/tasks/tasks.module';
+import { JobsModule } from './jobs/jobs.module';
 
 @Module({
   controllers: [AppController, HelpController, ProductOptionGroupController],
@@ -137,7 +137,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
       },
     }),
     ScheduleModule.forRoot(),
-    TasksModule,
+    JobsModule,
   ],
 })
 export class AppModule { }

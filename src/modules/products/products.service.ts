@@ -49,16 +49,27 @@ export class ProductsService {
   }
 
   async getByProductGroupId(productGroupId: string) {
-    const product = await this.productRepository.find({
-      where: { product_group: { id: productGroupId } },
-      relations: ['option_groups', 'option_groups.options'],
-    });
+    const productIds = await this.productRepository
+      .createQueryBuilder('product')
+      .select('product.id')
+      .addSelect('product.popularity')
+      .where('product.group_product_id = :productGroupId', { productGroupId })
+      .orderBy('product.popularity', 'DESC', 'NULLS LAST')
+      .getMany()
+      .then((products) => products.map((p) => p.id));
 
-    if (!product) {
+    if (productIds.length === 0) {
       throw new NotFoundException(`Product with id ${productGroupId} not found`);
     }
 
-    return await this.productRepository.save(product);
+    return await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.option_groups', 'optionGroup')
+      .leftJoinAndSelect('optionGroup.options', 'option')
+      .where('product.id IN (:...ids)', { ids: productIds })
+      .orderBy('product.popularity', 'DESC', 'NULLS LAST')
+      .addOrderBy('option.popularity', 'DESC', 'NULLS LAST')
+      .getMany();
   }
 
   async getProductsByBusinessId(
@@ -67,20 +78,45 @@ export class ProductsService {
     limit: number = 10,
     search?: string,
   ) {
-    const whereCondition: any = {
-      product_group: { business: { id: businessId } },
-    };
+
+    const baseQuery = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoin('product.product_group', 'productGroup')
+      .where('productGroup.business_id = :businessId', { businessId });
 
     if (search) {
-      whereCondition.name = ILike(`%${search}%`);
+      baseQuery.andWhere('product.name ILIKE :search', { search: `%${search}%` });
     }
 
-    const [products, total] = await this.productRepository.findAndCount({
-      where: whereCondition,
-      relations: ['option_groups', 'option_groups.options'],
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+    const total = await baseQuery.getCount();
+
+    if (total === 0) {
+      return {
+        data: [],
+        total,
+        page,
+        limit,
+        totalPages: 0,
+      };
+    }
+
+    const productIds = await baseQuery
+      .select('product.id')
+      .addSelect('product.popularity')
+      .orderBy('product.popularity', 'DESC', 'NULLS LAST')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany()
+      .then((products) => products.map((p) => p.id));
+
+    const products = await this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect('product.option_groups', 'optionGroup')
+      .leftJoinAndSelect('optionGroup.options', 'option')
+      .where('product.id IN (:...ids)', { ids: productIds })
+      .orderBy('product.popularity', 'DESC', 'NULLS LAST')
+      .addOrderBy('option.popularity', 'DESC', 'NULLS LAST')
+      .getMany();
 
     return {
       data: products,

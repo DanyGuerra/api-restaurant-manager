@@ -77,7 +77,6 @@ export class ProductOptionGroupService {
       );
     }
 
-    // Check if new link already exists
     const newLinkExists = await this.productOptionRepository.findOne({
       where: {
         product: { id: dto.product_id },
@@ -92,14 +91,12 @@ export class ProductOptionGroupService {
     }
 
     try {
-      // Create new link
       const newPOG = this.productOptionRepository.create({
         product: { id: dto.product_id },
         option_group: { id: dto.new_option_group_id },
       });
       await this.productOptionRepository.save(newPOG);
 
-      // Remove old link
       await this.productOptionRepository.remove(currentPOG);
 
       return newPOG;

@@ -1,18 +1,18 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 
 @Injectable()
-export class PopularityTasksService {
-  private readonly logger = new Logger(PopularityTasksService.name);
+export class PopularityService {
+  private readonly logger = new Logger(PopularityService.name);
 
   constructor(
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) { }
 
-  @Cron(CronExpression.EVERY_10_SECONDS, {
+  @Cron('0 0 2 * * 0,3', {
     timeZone: 'America/Mexico_City',
   })
   async updatePopularity() {

@@ -15,7 +15,7 @@ import { ProductGroup } from './product-group.entity';
 import { OptionGroup } from './option-group.entity';
 import { OrderItem } from './order-item.entity';
 
-@Entity('products')
+@Entity('products', { orderBy: { popularity: 'DESC' } })
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -42,6 +42,9 @@ export class Product {
 
   @Column({ default: true })
   available: boolean;
+
+  @Column({ type: 'int', nullable: true, default: 0 })
+  popularity: number;
 
   @ManyToMany(() => OptionGroup)
   @JoinTable({

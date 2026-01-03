@@ -14,7 +14,7 @@ import { OptionGroup } from './option-group.entity';
 import { OrderItemOption } from './order-item-option.entity';
 
 @Index(['option_group_id', 'name'], { unique: true, where: 'deleted_at IS NULL' })
-@Entity('product_options')
+@Entity('product_options', { orderBy: { popularity: 'DESC' } })
 export class ProductOption {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -43,6 +43,9 @@ export class ProductOption {
 
   @Column({ default: true })
   available: boolean;
+
+  @Column({ type: 'int', nullable: true, default: 0 })
+  popularity: number;
 
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;

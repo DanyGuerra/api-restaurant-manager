@@ -13,11 +13,14 @@ import {
     DefaultValuePipe,
     ParseIntPipe,
     ParseEnumPipe,
+    Put,
+    ValidationPipe,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateFullOrderDto } from './dto/create-full-order.dto';
+import { UpdateFullOrderDto } from './dto/update-full-order.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BusinessIdHeader } from 'src/decorator/business-id/business-id.decorator';
 import { ConsumptionType, OrderStatus } from 'src/types/order';
@@ -52,6 +55,19 @@ export class OrdersController {
         return this.ordersService.createFullOrder(
             createOrderDto,
             userId,
+            businessId,
+        );
+    }
+    @Put('full/:id')
+    @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
+    updateFull(
+        @Param('id') id: string,
+        @Body() updateFullOrderDto: UpdateFullOrderDto,
+        @BusinessIdHeader() businessId: string,
+    ) {
+        return this.ordersService.updateFullOrder(
+            id,
+            updateFullOrderDto,
             businessId,
         );
     }

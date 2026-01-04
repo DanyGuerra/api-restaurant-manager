@@ -10,6 +10,7 @@ import { Order } from 'entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { CreateFullOrderDto } from './dto/create-full-order.dto';
+import { UpdateFullOrderDto } from './dto/update-full-order.dto';
 import { CartItemDto } from './dto/cart-item.dto';
 import { ConsumptionType, OrderStatus } from 'src/types/order';
 import { OrdersGateway } from './orders.gateway';
@@ -155,6 +156,118 @@ export class OrdersService {
 
     const savedOrder = await this.orderRepository.save(order);
     this.ordersGateway.server.to(businessId).emit('orderCreated', savedOrder.status);
+    return savedOrder;
+  }
+
+  async updateFullOrder(
+    id: string,
+    updateFullOrderDto: UpdateFullOrderDto,
+    businessId: string,
+  ) {
+    const { group_items, ...orderData } = updateFullOrderDto;
+    const { amount_paid } = orderData;
+
+    const order = await this.orderRepository.findOne({
+      where: { id },
+      relations: ['itemGroups'],
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with id ${id} not found`);
+    }
+
+    Object.assign(order, orderData);
+
+    let orderTotal = order.total;
+
+    if (group_items && group_items.length > 0) {
+      await this.orderItemGroupRepository.remove(order.itemGroups);
+      order.itemGroups = [];
+
+      const allItems: CartItemDto[] = group_items.flatMap((group) => group.items);
+
+      if (allItems.length > 0) {
+        const productIds = allItems.map((item) => item.product_id);
+        const optionIds = allItems.flatMap((item) => item.selected_options_ids);
+
+        const products = await this.productRepository.find({
+          where: { id: In(productIds) },
+        });
+
+        const options = await this.productOptionRepository.find({
+          where: { id: In(optionIds) },
+        });
+
+        const productMap = new Map(products.map((p) => [p.id, p]));
+        const optionMap = new Map(options.map((o) => [o.id, o]));
+
+        const processGroupItems = (groupItems: CartItemDto[]) => {
+          let groupSubtotal = 0;
+          const processedItems = groupItems.map((item) => {
+            const product = productMap.get(item.product_id);
+            if (!product) {
+              throw new NotFoundException(`Product with id ${item.product_id} not found`);
+            }
+
+            let itemPrice = Number(product.base_price);
+            const itemOptions = item.selected_options_ids.map((optId) => {
+              const option = optionMap.get(optId);
+              if (!option) {
+                throw new NotFoundException(`Option with id ${optId} not found`);
+              }
+              itemPrice += Number(option.price);
+              return {
+                productOption: { id: option.id },
+                price: Number(option.price),
+              };
+            });
+
+            const itemTotal = itemPrice * item.quantity;
+            groupSubtotal += itemTotal;
+
+            return {
+              product: { id: item.product_id },
+              quantity: item.quantity,
+              item_total: itemTotal,
+              options: itemOptions,
+            };
+          });
+          return { subtotal: groupSubtotal, items: processedItems };
+        };
+
+        orderTotal = 0;
+        const finalItemGroups: any[] = group_items.map((group) => {
+          const { subtotal, items } = processGroupItems(group.items);
+          orderTotal += subtotal;
+          const groupName = group.group_name;
+
+          return {
+            name: groupName,
+            subtotal: subtotal,
+            items: items,
+          };
+        });
+
+        order.itemGroups = finalItemGroups as any;
+      }
+    }
+
+    order.total = orderTotal;
+
+    const finalAmountPaid = amount_paid !== undefined ? amount_paid : order.amount_paid;
+
+    if (finalAmountPaid !== null && finalAmountPaid !== undefined) {
+      if (finalAmountPaid < orderTotal) {
+        throw new BadRequestException('Amount paid is less than the total');
+      }
+      order.amount_paid = finalAmountPaid;
+      order.change = finalAmountPaid - orderTotal;
+      order.paid = finalAmountPaid >= orderTotal;
+    }
+
+
+    const savedOrder = await this.orderRepository.save(order);
+    this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder.status);
     return savedOrder;
   }
 

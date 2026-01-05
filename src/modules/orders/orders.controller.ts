@@ -123,15 +123,15 @@ export class OrdersController {
         return this.ordersService.remove(id, businessId);
     }
 
-    @Delete('item/:itemId')
+    @Delete(':orderId/item/:itemId/')
     @Roles(RolName.OWNER, RolName.ADMIN)
-    deleteItem(@Param('itemId', new ParseUUIDPipe()) itemId: string) {
-        return this.ordersService.removeOrderItem(itemId);
+    deleteItem(@Param('itemId', new ParseUUIDPipe()) itemId: string, @Param('orderId', new ParseUUIDPipe()) orderId: string) {
+        return this.ordersService.removeOrderItem(orderId, itemId);
     }
 
-    @Delete('item-group/:itemGroupId')
+    @Delete(':orderId/item-group/:itemGroupId')
     @Roles(RolName.OWNER, RolName.ADMIN)
-    deleteItemGroup(@Param('itemGroupId', new ParseUUIDPipe()) itemGroupId: string) {
-        return this.ordersService.removeOrderItemGroup(itemGroupId);
+    deleteItemGroup(@Param('orderId', new ParseUUIDPipe()) orderId: string, @Param('itemGroupId', new ParseUUIDPipe()) itemGroupId: string) {
+        return this.ordersService.removeOrderItemGroup(orderId, itemGroupId);
     }
 }

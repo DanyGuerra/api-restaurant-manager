@@ -359,7 +359,7 @@ export class OrdersService {
 
     this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder.status);
 
-    return savedOrder;
+    return await this.findOne(id);
   }
 
   async remove(id: string, businessId: string) {
@@ -406,7 +406,7 @@ export class OrdersService {
     return savedOrder;
   }
 
-  async removeOrderItem(itemId: string) {
+  async removeOrderItem(orderId: string, itemId: string) {
     const item = await this.orderItemRepository.findOne({
       where: { id: itemId },
       relations: ['group', 'group.order'],
@@ -416,18 +416,16 @@ export class OrdersService {
       throw new NotFoundException(`Order item with id ${itemId} not found`);
     }
 
-    const orderId = item.group?.order?.id;
-
     await this.orderItemRepository.softRemove(item);
 
-    if (orderId) {
-      await this.recalculateOrderTotals(orderId);
-    }
+    await this.recalculateOrderTotals(orderId);
+    const order = await this.findOne(orderId);
+    return { message: 'Item removed and order updated', data: order };
 
-    return { message: 'Item removed and order updated' };
+
   }
 
-  async removeOrderItemGroup(itemGroupId: string) {
+  async removeOrderItemGroup(orderId: string, itemGroupId: string) {
     const group = await this.orderItemGroupRepository.findOne({
       where: { id: itemGroupId },
       relations: ['order'],
@@ -437,14 +435,12 @@ export class OrdersService {
       throw new NotFoundException(`Order item group with id ${itemGroupId} not found`);
     }
 
-    const orderId = group.order.id;
+
 
     await this.orderItemGroupRepository.softRemove(group);
 
-    if (orderId) {
-      await this.recalculateOrderTotals(orderId);
-    }
-
-    return { message: 'Item group removed and order updated' };
+    await this.recalculateOrderTotals(orderId);
+    const order = await this.findOne(orderId);
+    return { message: 'Item group removed and order updated', data: order };
   }
 }

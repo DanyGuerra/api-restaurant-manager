@@ -1,12 +1,15 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   Post,
   Req,
   Res,
   UnauthorizedException,
   UseGuards,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/dto/create-user.dto';
@@ -16,7 +19,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Post('signup')
   async register(@Body() createUserDto: CreateUserDto) {
@@ -88,5 +91,22 @@ export class AuthController {
     const userId = req.user.sub;
 
     return this.authService.updatePassword(userId, body.oldPassword, body.newPassword);
+  }
+
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token: string) {
+    if (!token) {
+      throw new BadRequestException('Token is required');
+    }
+    await this.authService.verifyEmail(token);
+    return { message: 'Email confirmed successfully' };
+  }
+
+  @Post('resend-verification')
+  async resendVerification(@Body('email') email: string) {
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+    return this.authService.resendVerification(email);
   }
 }

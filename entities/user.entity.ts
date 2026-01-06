@@ -37,6 +37,13 @@ export class User {
   @Exclude()
   refreshToken?: string;
 
+  @Column({ default: false })
+  is_verified: boolean;
+
+  @Column({ nullable: true })
+  @Exclude()
+  verification_token?: string;
+
   @CreateDateColumn({ default: () => 'NOW()' })
   created_at: Date;
 

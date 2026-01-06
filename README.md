@@ -39,6 +39,12 @@ JWT_EXPIRES_IN=1d
 JWT_REFRESH_SECRET=your_jwt_refresh_secret
 JWT_REFRESH_EXPIRES_IN=7d
 API_KEY=api_key
+
+# Mail
+MAIL_HOST=smtp.example.com
+MAIL_USER=user@example.com
+MAIL_PASSWORD=topsecret
+MAIL_FROM=noreply@example.com
 ```
 
 ## 📦 Installation

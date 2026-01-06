@@ -9,7 +9,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async findByEmail(email: string): Promise<User | null> {
     return await this.usersRepository.findOne({ where: { email } });
@@ -64,5 +64,16 @@ export class UsersService {
 
   saveUser(user: User) {
     return this.usersRepository.save(user);
+  }
+
+  async findByVerificationToken(token: string) {
+    return this.usersRepository.findOne({ where: { verification_token: token } });
+  }
+
+  async markEmailAsVerified(userId: string) {
+    await this.usersRepository.update(userId, {
+      is_verified: true,
+      verification_token: null as any,
+    });
   }
 }

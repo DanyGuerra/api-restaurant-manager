@@ -1,8 +1,10 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { MailService } from '../mail/mail.service';
+import { v4 as uuidv4 } from 'uuid';
 import { UserWithoutPassword } from 'src/types/user';
 
 @Injectable()
@@ -10,26 +12,61 @@ export class AuthService {
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
-  ) {}
+    private mailService: MailService,
+  ) { }
 
   async register(createUserDto: CreateUserDto) {
-    const { email, password, username } = createUserDto;
+    try {
+      const { email, password, username } = createUserDto;
 
-    const existingUser = await this.userService.findByEmail(email);
-    const existingUsername = await this.userService.findByUsername(username);
+      const existingUser = await this.userService.findByEmail(email);
+      const existingUsername = await this.userService.findByUsername(username);
 
-    if (existingUser) {
-      throw new ConflictException('This email already exists');
+      if (existingUser) {
+        throw new ConflictException('This email already exists');
+      }
+
+      if (existingUsername) {
+        throw new ConflictException('This username already exists');
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const token = uuidv4();
+
+      const user = this.userService.createUser({ ...createUserDto, verification_token: token }, hashedPassword);
+
+      const savedUser = await this.userService.saveUser(user);
+
+      await this.mailService.sendUserConfirmation(savedUser, token);
+
+      return savedUser;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async verifyEmail(token: string) {
+    const user = await this.userService.findByVerificationToken(token);
+    if (!user) {
+      throw new UnauthorizedException('Invalid verification token');
+    }
+    await this.userService.markEmailAsVerified(user.id);
+  }
+
+  async resendVerification(email: string) {
+    const user = await this.userService.findByEmail(email);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (user.is_verified) {
+      throw new BadRequestException('User already verified');
     }
 
-    if (existingUsername) {
-      throw new ConflictException('This username already exists');
-    }
+    const token = uuidv4();
+    await this.userService.update(user.id, { verification_token: token });
+    await this.mailService.sendUserConfirmation(user, token);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = this.userService.createUser(createUserDto, hashedPassword);
-
-    return await this.userService.saveUser(user);
+    return { message: 'Verification email resent' };
   }
 
   private async getTokens(user: any) {

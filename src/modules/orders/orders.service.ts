@@ -278,8 +278,8 @@ export class OrdersService {
     status?: OrderStatus,
     consumption_type?: ConsumptionType,
     sort: 'ASC' | 'DESC' = 'ASC',
-    start_date?: string,
-    end_date?: string,
+    start_date?: Date,
+    end_date?: Date,
   ) {
     const queryBuilder = this.getOrderQueryBuilder().where('order.business = :businessId', {
       businessId,

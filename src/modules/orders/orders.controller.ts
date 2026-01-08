@@ -26,6 +26,7 @@ import { ConsumptionType, OrderStatus } from 'src/types/order';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolName } from 'src/types/roles';
+import { ParseDatePipe } from 'src/common/pipes/parse-date.pipe';
 
 @Controller('orders')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -85,8 +86,8 @@ export class OrdersController {
         )
         consumption_type?: ConsumptionType,
         @Query('sort', new DefaultValuePipe('ASC')) sort?: 'ASC' | 'DESC',
-        @Query('start_date') start_date?: string,
-        @Query('end_date') end_date?: string,
+        @Query('start_date', new ParseDatePipe()) start_date?: Date,
+        @Query('end_date', new ParseDatePipe()) end_date?: Date,
     ) {
         return this.ordersService.findByBusinessId(
             businessId,

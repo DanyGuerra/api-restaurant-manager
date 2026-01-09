@@ -1,4 +1,4 @@
-name: Deploy to EC2 (Docker - test)
+name: Deploy to EC2 (test)
 
 on:
   push:
@@ -13,23 +13,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: |
-          docker build -t api-restaurant-manager:latest .
-
-      - name: Save Docker image
-        run: |
-          docker save api-restaurant-manager:latest | gzip > image.tar.gz
-
-      - name: Copy image to EC2
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST_TEST }}
-          username: ${{ secrets.EC2_USER_TEST }}
-          key: ${{ secrets.EC2_SSH_KEY_TEST }}
-          source: "image.tar.gz"
-          target: "/var/www/api-restaurant-manager"
-
       - name: SSH and deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -37,10 +20,15 @@ jobs:
           username: ${{ secrets.EC2_USER_TEST }}
           key: ${{ secrets.EC2_SSH_KEY_TEST }}
           script: |
+            export PATH=$PATH:/usr/local/bin
+
             cd /var/www/api-restaurant-manager
 
-            docker load < image.tar.gz
-            docker compose -f docker-compose.yml down
-            docker compose -f docker-compose.yml up -d
+            git checkout test
+            git pull origin test
 
-            docker image prune -f
+            npm install
+            npm run build
+
+            pm2 start ecosystem.config.js --env test || pm2 reload ecosystem.config.js --env test
+            pm2 save

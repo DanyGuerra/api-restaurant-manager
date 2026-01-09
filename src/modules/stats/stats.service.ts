@@ -3,10 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order } from 'entities/order.entity';
 import { OrderStatus } from 'src/types/order';
-import { SalesStats } from './interfaces/sales-stats.interface';
-
+import { SalesStats, DailySalesResponse } from './interfaces/sales-stats.interface';
 import { OrderItem } from 'entities/order-item.entity';
-import { OrderItemOption } from 'entities/order-item-option.entity';
+import { subMonths, startOfDay, endOfDay } from 'date-fns';
 
 @Injectable()
 export class StatsService {
@@ -15,11 +14,66 @@ export class StatsService {
         private orderRepository: Repository<Order>,
         @InjectRepository(OrderItem)
         private orderItemRepository: Repository<OrderItem>,
-        @InjectRepository(OrderItemOption)
-        private orderItemOptionRepository: Repository<OrderItemOption>,
     ) { }
 
+    async getDailySales(businessId: string, from?: Date, to?: Date): Promise<DailySalesResponse> {
+        if (!from && !to) {
+            const now = new Date();
+            to = endOfDay(now);
+            from = startOfDay(subMonths(now, 1));
+        }
+
+
+        const query = this.orderRepository
+            .createQueryBuilder('order')
+            .select("DATE(order.created_at)", "date")
+            .addSelect("SUM(order.total)", "total_sales")
+            .where("order.business = :businessId", { businessId })
+            .andWhere("order.status != :status", { status: OrderStatus.CANCELLED })
+            .groupBy("DATE(order.created_at)")
+            .orderBy("DATE(order.created_at)", "ASC");
+
+        if (from) {
+            query.andWhere("order.created_at >= :from", { from });
+        }
+
+        if (to) {
+            query.andWhere("order.created_at <= :to", { to });
+        }
+
+        const result = await query.getRawMany();
+
+        const data = result.map(record => ({
+            date: record.date instanceof Date ? record.date.toISOString().split('T')[0] : record.date,
+            total_sales: parseFloat(record.total_sales) || 0,
+        }));
+
+        const total_revenue = data.reduce((sum, day) => sum + day.total_sales, 0);
+        const avg_daily = data.length > 0 ? total_revenue / data.length : 0;
+
+        let best_day = { date: '', revenue: 0 };
+        if (data.length > 0) {
+            const maxDay = data.reduce((prev, current) => (prev.total_sales > current.total_sales) ? prev : current);
+            best_day = { date: maxDay.date, revenue: maxDay.total_sales };
+        }
+
+        return {
+            summary: {
+                total_revenue,
+                avg_daily,
+                best_day
+            },
+            data
+        };
+    }
+
     async getSales(businessId: string, from?: Date, to?: Date, top_limit: number = 5): Promise<SalesStats> {
+        if (!from && !to) {
+            const now = new Date();
+            to = endOfDay(now);
+            from = startOfDay(subMonths(now, 1));
+        }
+
         // Base Query for Summary
         const query = this.orderRepository
             .createQueryBuilder('order')

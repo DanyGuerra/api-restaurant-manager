@@ -22,4 +22,14 @@ export class StatsController {
     ) {
         return this.statsService.getSales(businessId, start_date, end_date, top_limit ? parseInt(top_limit, 10) : 5);
     }
+
+    @Get('daily-sales')
+    @Roles(RolName.OWNER, RolName.ADMIN)
+    getDailySales(
+        @BusinessIdHeader() businessId: string,
+        @Query('start_date', new ParseDatePipe()) start_date?: Date,
+        @Query('end_date', new ParseDatePipe()) end_date?: Date,
+    ) {
+        return this.statsService.getDailySales(businessId, start_date, end_date);
+    }
 }

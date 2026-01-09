@@ -66,19 +66,6 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
-## 🐳 Running with Docker
-
-To run the application and database locally using Docker:
-
-```bash
-$ docker compose up --build
-```
-
-This will run:
-
-- **API**: http://localhost:3000
-- **Postgres**: port 5432
-
 ## 🧪 Tests
 
 ```bash

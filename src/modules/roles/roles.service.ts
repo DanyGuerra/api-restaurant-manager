@@ -1,17 +1,39 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, OnModuleInit, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from 'entities/role.entity';
 import { Repository } from 'typeorm';
 import { CreateRolDto } from './dto/crear-rol.dto';
-import { RolName } from 'src/types/roles';
+import { RolName, RolId } from 'src/types/roles';
 import { UpdateRolDto } from './dto/update-rol.dto';
 
 @Injectable()
-export class RolesService {
+export class RolesService implements OnModuleInit {
+  private readonly logger = new Logger(RolesService.name);
+
   constructor(
     @InjectRepository(Role)
     private roleRepository: Repository<Role>,
-  ) {}
+  ) { }
+
+  async onModuleInit() {
+    await this.seedRoles();
+  }
+
+  private async seedRoles() {
+    const roles = [
+      { id: RolId.OWNER, name: RolName.OWNER },
+      { id: RolId.ADMIN, name: RolName.ADMIN },
+      { id: RolId.WAITER, name: RolName.WAITER },
+    ];
+
+    for (const role of roles) {
+      const exists = await this.roleRepository.findOneBy({ id: role.id });
+      if (!exists) {
+        this.logger.log(`Seeding role ${role.name}`);
+        await this.roleRepository.save(role);
+      }
+    }
+  }
 
   async getAll(): Promise<Role[]> {
     return await this.roleRepository.find({ order: { id: 'ASC' } });

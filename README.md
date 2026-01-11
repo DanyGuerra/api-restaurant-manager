@@ -66,6 +66,11 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+This will run:
+
+- **API**: http://localhost:3000
+- **Postgres**: port 5432
+
 ## 🧪 Tests
 
 ```bash

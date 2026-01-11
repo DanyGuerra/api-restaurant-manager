@@ -58,6 +58,7 @@ export class OrdersController {
             businessId,
         );
     }
+
     @Put('full/:id')
     @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
     updateFull(
@@ -108,7 +109,7 @@ export class OrdersController {
     }
 
     @Patch(':id')
-    @Roles(RolName.OWNER, RolName.ADMIN)
+    @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
     update(
         @BusinessIdHeader() businessId: string,
         @Param('id', new ParseUUIDPipe()) id: string,
@@ -124,13 +125,13 @@ export class OrdersController {
     }
 
     @Delete(':orderId/item/:itemId/')
-    @Roles(RolName.OWNER, RolName.ADMIN)
+    @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
     deleteItem(@Param('itemId', new ParseUUIDPipe()) itemId: string, @Param('orderId', new ParseUUIDPipe()) orderId: string) {
         return this.ordersService.removeOrderItem(orderId, itemId);
     }
 
     @Delete(':orderId/item-group/:itemGroupId')
-    @Roles(RolName.OWNER, RolName.ADMIN)
+    @Roles(RolName.OWNER, RolName.ADMIN, RolName.WAITER)
     deleteItemGroup(@Param('orderId', new ParseUUIDPipe()) orderId: string, @Param('itemGroupId', new ParseUUIDPipe()) itemGroupId: string) {
         return this.ordersService.removeOrderItemGroup(orderId, itemGroupId);
     }

@@ -5,7 +5,6 @@ import { Order } from 'entities/order.entity';
 import { OrderStatus } from 'src/types/order';
 import { SalesStats, DailySalesResponse } from './interfaces/sales-stats.interface';
 import { OrderItem } from 'entities/order-item.entity';
-import { subMonths, startOfDay, endOfDay } from 'date-fns';
 
 @Injectable()
 export class StatsService {
@@ -17,13 +16,6 @@ export class StatsService {
     ) { }
 
     async getDailySales(businessId: string, from?: Date, to?: Date): Promise<DailySalesResponse> {
-        if (!from && !to) {
-            const now = new Date();
-            to = endOfDay(now);
-            from = startOfDay(subMonths(now, 1));
-        }
-
-
         const query = this.orderRepository
             .createQueryBuilder('order')
             .select("DATE(order.created_at)", "date")
@@ -68,12 +60,6 @@ export class StatsService {
     }
 
     async getSales(businessId: string, from?: Date, to?: Date, top_limit: number = 5): Promise<SalesStats> {
-        if (!from && !to) {
-            const now = new Date();
-            to = endOfDay(now);
-            from = startOfDay(subMonths(now, 1));
-        }
-
         // Base Query for Summary
         const query = this.orderRepository
             .createQueryBuilder('order')

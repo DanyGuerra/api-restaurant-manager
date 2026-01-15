@@ -4,9 +4,10 @@ import { OrderItemsService } from './order-items.service';
 import { OrderItemsController } from './order-items.controller';
 import { OrderItem } from 'entities/order-item.entity';
 import { UserBusinessRole } from 'entities/user-business-role.entity';
+import { OrdersModule } from '../orders/orders.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([OrderItem, UserBusinessRole])],
+  imports: [TypeOrmModule.forFeature([OrderItem, UserBusinessRole]), OrdersModule],
   controllers: [OrderItemsController],
   providers: [OrderItemsService],
   exports: [OrderItemsService],

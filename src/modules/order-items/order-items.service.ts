@@ -4,13 +4,15 @@ import { Repository } from 'typeorm';
 import { OrderItem } from 'entities/order-item.entity';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { UpdateOrderItemDto } from './dto/update-order-item.dto';
+import { OrdersGateway } from '../orders/orders.gateway';
 
 @Injectable()
 export class OrderItemsService {
   constructor(
     @InjectRepository(OrderItem)
     private orderItemRepository: Repository<OrderItem>,
-  ) {}
+    private readonly ordersGateway: OrdersGateway,
+  ) { }
 
   async create(createOrderItemDto: CreateOrderItemDto) {
     const item = this.orderItemRepository.create({
@@ -39,7 +41,7 @@ export class OrderItemsService {
   async findOne(id: string) {
     const item = await this.orderItemRepository.findOne({
       where: { id },
-      relations: ['product', 'group', 'options'],
+      relations: ['product', 'group', 'options', 'group.order', 'group.order.business'],
     });
 
     if (!item) {
@@ -54,7 +56,16 @@ export class OrderItemsService {
 
     Object.assign(item, updateOrderItemDto);
 
-    return await this.orderItemRepository.save(item);
+    const savedItem = await this.orderItemRepository.save(item);
+
+    // Emit socket event
+    if (savedItem.group?.order?.business?.id) {
+      this.ordersGateway.server
+        .to(savedItem.group.order.business.id)
+        .emit('orderUpdated', savedItem.group.order.status);
+    }
+
+    return savedItem;
   }
 
   async remove(id: string) {

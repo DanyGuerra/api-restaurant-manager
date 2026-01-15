@@ -50,7 +50,6 @@ export class OptionGroupService {
       .leftJoinAndSelect('optionGroup.options', 'option')
       .where('optionGroup.business_id = :businessId', { businessId })
       .orderBy('optionGroup.created_at', 'DESC')
-      .addOrderBy('option.popularity', 'DESC', 'NULLS LAST')
       .skip((page - 1) * limit)
       .take(limit);
 
@@ -61,6 +60,16 @@ export class OptionGroupService {
     }
 
     const [optionGroups, total] = await queryBuilder.getManyAndCount();
+
+    optionGroups.forEach((group) => {
+      if (group.options) {
+        group.options.sort((a, b) => {
+          const popularityA = a.popularity ?? 0;
+          const popularityB = b.popularity ?? 0;
+          return popularityB - popularityA;
+        });
+      }
+    });
 
     return {
       data: optionGroups,

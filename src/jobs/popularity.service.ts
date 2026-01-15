@@ -12,7 +12,7 @@ export class PopularityService {
     private readonly dataSource: DataSource,
   ) { }
 
-  @Cron('0 0 2 * * 0,3', {
+  @Cron('0 0 2 * * 0,4', {
     timeZone: 'America/Mexico_City',
   })
   async updatePopularity() {

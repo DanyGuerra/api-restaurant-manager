@@ -116,6 +116,7 @@ export class OrdersService {
         return {
           product: { id: item.product_id },
           quantity: item.quantity,
+          is_ready: item.is_ready,
           item_total: itemTotal,
           options: itemOptions,
         };
@@ -233,6 +234,7 @@ export class OrdersService {
             return {
               product: { id: item.product_id },
               quantity: item.quantity,
+              is_ready: item.is_ready,
               item_total: itemTotal,
               options: itemOptions,
             };

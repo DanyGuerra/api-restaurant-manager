@@ -1,4 +1,4 @@
-import { IsArray, IsNumber, IsUUID } from 'class-validator';
+import { IsArray, IsBoolean, IsNumber, IsOptional, IsUUID } from 'class-validator';
 
 export class CartItemDto {
   @IsUUID('4')
@@ -6,6 +6,10 @@ export class CartItemDto {
 
   @IsNumber()
   quantity: number;
+
+  @IsBoolean()
+  @IsOptional()
+  is_ready?: boolean;
 
   @IsArray()
   @IsUUID('4', { each: true })

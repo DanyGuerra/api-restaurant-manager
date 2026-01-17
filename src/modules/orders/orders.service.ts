@@ -165,6 +165,11 @@ export class OrdersService {
     businessId: string,
   ) {
     const { group_items, ...orderData } = updateFullOrderDto;
+
+    Object.keys(orderData).forEach(
+      (key) => orderData[key] === undefined && delete orderData[key],
+    );
+
     const { amount_paid } = orderData;
 
     const order = await this.orderRepository.findOne({

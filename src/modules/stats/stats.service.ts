@@ -16,14 +16,25 @@ export class StatsService {
     ) { }
 
     async getDailySales(businessId: string, from?: Date, to?: Date): Promise<DailySalesResponse> {
+        let timeOffset = '0 seconds';
+
+        if (from) {
+            const hours = from.getUTCHours();
+            const minutes = from.getUTCMinutes();
+            const seconds = from.getUTCSeconds();
+            timeOffset = `${hours} hours ${minutes} minutes ${seconds} seconds`;
+        }
+
+        const dateExpression = `DATE(order.created_at - INTERVAL '${timeOffset}')`;
+
         const query = this.orderRepository
             .createQueryBuilder('order')
-            .select("DATE(order.created_at)", "date")
+            .select(dateExpression, "date")
             .addSelect("SUM(order.total)", "total_sales")
             .where("order.business = :businessId", { businessId })
             .andWhere("order.status != :status", { status: OrderStatus.CANCELLED })
-            .groupBy("DATE(order.created_at)")
-            .orderBy("DATE(order.created_at)", "ASC");
+            .groupBy(dateExpression)
+            .orderBy(dateExpression, "ASC");
 
         if (from) {
             query.andWhere("order.created_at >= :from", { from });

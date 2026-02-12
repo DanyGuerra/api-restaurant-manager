@@ -10,4 +10,5 @@ export enum OrderStatus {
   READY = 'ready',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
+  SCHEDULED = 'scheduled',
 }

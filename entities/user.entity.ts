@@ -44,6 +44,14 @@ export class User {
   @Exclude()
   verification_token?: string;
 
+  @Column({ nullable: true })
+  @Exclude()
+  reset_password_token?: string;
+
+  @Column({ nullable: true })
+  @Exclude()
+  reset_password_expires?: Date;
+
   @CreateDateColumn({ default: () => 'NOW()' })
   created_at: Date;
 

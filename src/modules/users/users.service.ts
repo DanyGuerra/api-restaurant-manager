@@ -76,4 +76,22 @@ export class UsersService {
       verification_token: null as any,
     });
   }
+
+  async saveResetToken(userId: string, token: string, expires: Date) {
+    await this.usersRepository.update(userId, {
+      reset_password_token: token,
+      reset_password_expires: expires,
+    });
+  }
+
+  async findByResetToken(token: string) {
+    return this.usersRepository.findOne({ where: { reset_password_token: token } });
+  }
+
+  async clearResetToken(userId: string) {
+    await this.usersRepository.update(userId, {
+      reset_password_token: null as any,
+      reset_password_expires: null as any,
+    });
+  }
 }

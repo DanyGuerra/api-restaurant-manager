@@ -59,7 +59,7 @@ export class ProductsService {
       .then((products) => products.map((p) => p.id));
 
     if (productIds.length === 0) {
-      throw new NotFoundException(`Product with id ${productGroupId} not found`);
+      return [];
     }
 
     return await this.productRepository

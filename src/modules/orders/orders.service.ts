@@ -287,6 +287,7 @@ export class OrdersService {
     sort: 'ASC' | 'DESC' = 'ASC',
     start_date?: Date,
     end_date?: Date,
+    customer_name?: string,
   ) {
     const queryBuilder = this.getOrderQueryBuilder().where('order.business = :businessId', {
       businessId,
@@ -306,6 +307,10 @@ export class OrdersService {
 
     if (end_date) {
       queryBuilder.andWhere('order.created_at <= :end_date', { end_date });
+    }
+
+    if (customer_name) {
+      queryBuilder.andWhere('order.customer_name ILIKE :customer_name', { customer_name: `%${customer_name}%` });
     }
 
     const [orders, total] = await queryBuilder

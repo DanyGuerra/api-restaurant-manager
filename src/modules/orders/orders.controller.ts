@@ -89,6 +89,7 @@ export class OrdersController {
         @Query('sort', new DefaultValuePipe('ASC')) sort?: 'ASC' | 'DESC',
         @Query('start_date', new ParseDatePipe()) start_date?: Date,
         @Query('end_date', new ParseDatePipe()) end_date?: Date,
+        @Query('customer_name') customer_name?: string,
     ) {
         return this.ordersService.findByBusinessId(
             businessId,
@@ -99,6 +100,7 @@ export class OrdersController {
             sort,
             start_date,
             end_date,
+            customer_name,
         );
     }
 

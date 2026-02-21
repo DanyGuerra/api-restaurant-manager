@@ -14,7 +14,6 @@ import { User } from './user.entity';
 import { OrderItemGroup } from './order-item-group.entity';
 import { OrderLabel } from './order-label.entity';
 import { ConsumptionType, OrderStatus } from 'src/types/order';
-import { Exclude } from 'class-transformer';
 
 @Entity('orders')
 export class Order {

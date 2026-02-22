@@ -14,6 +14,7 @@ import {
     ParseIntPipe,
     ParseEnumPipe,
     Put,
+    ParseBoolPipe,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -90,6 +91,7 @@ export class OrdersController {
         @Query('start_date', new ParseDatePipe()) start_date?: Date,
         @Query('end_date', new ParseDatePipe()) end_date?: Date,
         @Query('customer_name') customer_name?: string,
+        @Query('paid', new ParseBoolPipe({ optional: true })) paid?: boolean,
     ) {
         return this.ordersService.findByBusinessId(
             businessId,
@@ -101,6 +103,7 @@ export class OrdersController {
             start_date,
             end_date,
             customer_name,
+            paid,
         );
     }
 

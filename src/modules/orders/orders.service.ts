@@ -151,7 +151,7 @@ export class OrdersService {
       itemGroups: finalItemGroups,
       amount_paid: orderData.amount_paid,
       change: amount_paid ? amount_paid - orderTotal : undefined,
-      paid: amount_paid ? amount_paid > orderTotal : undefined,
+      paid: amount_paid ? amount_paid >= orderTotal : undefined,
       order_number: orderNumber,
     });
 
@@ -264,12 +264,13 @@ export class OrdersService {
     const finalAmountPaid = amount_paid !== undefined ? amount_paid : order.amount_paid;
 
     if (finalAmountPaid !== null && finalAmountPaid !== undefined) {
-      if (finalAmountPaid < orderTotal) {
-        throw new BadRequestException('Amount paid is less than the total');
-      }
       order.amount_paid = finalAmountPaid;
-      order.change = finalAmountPaid - orderTotal;
+      order.change = finalAmountPaid > orderTotal ? finalAmountPaid - orderTotal : 0;
       order.paid = finalAmountPaid >= orderTotal;
+    } else {
+      order.amount_paid = null as any;
+      order.change = null as any;
+      order.paid = false;
     }
 
 
@@ -288,6 +289,7 @@ export class OrdersService {
     start_date?: Date,
     end_date?: Date,
     customer_name?: string,
+    paid?: boolean,
   ) {
     const queryBuilder = this.getOrderQueryBuilder().where('order.business = :businessId', {
       businessId,
@@ -311,6 +313,10 @@ export class OrdersService {
 
     if (customer_name) {
       queryBuilder.andWhere('order.customer_name ILIKE :customer_name', { customer_name: `%${customer_name}%` });
+    }
+
+    if (paid !== undefined) {
+      queryBuilder.andWhere('order.paid = :paid', { paid });
     }
 
     const [orders, total] = await queryBuilder
@@ -358,13 +364,13 @@ export class OrdersService {
 
     Object.assign(order, updateOrderDto);
 
-    if (updateOrderDto.amount_paid && updateOrderDto.amount_paid < order.total) {
-      throw new BadRequestException('Amount paid is less than the total');
-    }
-
-    if (updateOrderDto.amount_paid) {
-      order.change = updateOrderDto.amount_paid - order.total;
-      order.paid = updateOrderDto.amount_paid >= order.total;
+    if (order.amount_paid !== null && order.amount_paid !== undefined) {
+      order.change = order.amount_paid > order.total ? order.amount_paid - order.total : 0;
+      order.paid = order.amount_paid >= order.total;
+    } else {
+      order.amount_paid = null as any;
+      order.change = null as any;
+      order.paid = false;
     }
 
     const savedOrder = await this.orderRepository.save(order);
@@ -406,9 +412,13 @@ export class OrdersService {
 
     order.total = orderTotal;
 
-    if (order.amount_paid) {
-      order.change = order.amount_paid - orderTotal;
+    if (order.amount_paid !== null && order.amount_paid !== undefined) {
+      order.change = order.amount_paid > orderTotal ? order.amount_paid - orderTotal : 0;
       order.paid = order.amount_paid >= orderTotal;
+    } else {
+      order.amount_paid = null as any;
+      order.change = null as any;
+      order.paid = false;
     }
 
     const savedOrder = await this.orderRepository.save(order);

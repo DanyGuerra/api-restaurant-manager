@@ -11,6 +11,7 @@ import { UserBusinessRole } from 'entities/user-business-role.entity';
 
 import { AuthModule } from '../auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { CashRegisterModule } from '../cash-register/cash-register.module';
 
 import { OrdersGateway } from './orders.gateway';
 
@@ -19,6 +20,7 @@ import { OrdersGateway } from './orders.gateway';
     AuthModule,
     ConfigModule,
     TypeOrmModule.forFeature([Order, Product, ProductOption, OrderItem, OrderItemGroup, UserBusinessRole]),
+    CashRegisterModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService, OrdersGateway],

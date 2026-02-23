@@ -14,6 +14,7 @@ import { UpdateFullOrderDto } from './dto/update-full-order.dto';
 import { CartItemDto } from './dto/cart-item.dto';
 import { ConsumptionType, OrderStatus } from 'src/types/order';
 import { OrdersGateway } from './orders.gateway';
+import { CashRegisterService } from '../cash-register/cash-register.service';
 
 @Injectable()
 export class OrdersService {
@@ -29,6 +30,7 @@ export class OrdersService {
     @InjectRepository(OrderItemGroup)
     private orderItemGroupRepository: Repository<OrderItemGroup>,
     private readonly ordersGateway: OrdersGateway,
+    private readonly cashRegisterService: CashRegisterService,
   ) { }
 
   async create(createOrderDto: CreateOrderDto, userId: string, businessId: string) {
@@ -141,6 +143,15 @@ export class OrdersService {
       throw new BadRequestException('Amount paid is less than the total');
     }
 
+    const changeDue = amount_paid && amount_paid > orderTotal ? amount_paid - orderTotal : 0;
+
+    if (changeDue > 0) {
+      const register = await this.cashRegisterService.getCashRegister(businessId);
+      if (Number(register.balance) < changeDue) {
+        throw new BadRequestException('No hay suficiente dinero en la caja para dar el cambio');
+      }
+    }
+
     const orderNumber = await this.getNextOrderNumber(businessId);
 
     const order = this.orderRepository.create({
@@ -157,6 +168,23 @@ export class OrdersService {
 
     const savedOrder = await this.orderRepository.save(order);
     this.ordersGateway.server.to(businessId).emit('orderCreated', savedOrder.status);
+
+    if (savedOrder.amount_paid) {
+      await this.cashRegisterService.addMoney(businessId, {
+        amount: Number(savedOrder.amount_paid),
+        description: `Pago de orden #${savedOrder.id}`,
+        order_id: savedOrder.id,
+      });
+
+      if (savedOrder.change && Number(savedOrder.change) > 0) {
+        await this.cashRegisterService.withdrawMoney(businessId, {
+          amount: Number(savedOrder.change),
+          description: `Cambio de orden #${savedOrder.id}`,
+          order_id: savedOrder.id,
+        });
+      }
+    }
+
     return savedOrder;
   }
 
@@ -181,6 +209,9 @@ export class OrdersService {
     if (!order) {
       throw new NotFoundException(`Order with id ${id} not found`);
     }
+
+    const oldAmountPaid = Number(order.amount_paid) || 0;
+    const oldChange = Number(order.change) || 0;
 
     Object.assign(order, orderData);
 
@@ -262,20 +293,32 @@ export class OrdersService {
     order.total = orderTotal;
 
     const finalAmountPaid = amount_paid !== undefined ? amount_paid : order.amount_paid;
+    let newAmountPaid = 0;
+    let newChange = 0;
 
     if (finalAmountPaid !== null && finalAmountPaid !== undefined) {
-      order.amount_paid = finalAmountPaid;
-      order.change = finalAmountPaid > orderTotal ? finalAmountPaid - orderTotal : 0;
-      order.paid = finalAmountPaid >= orderTotal;
+      newAmountPaid = Number(finalAmountPaid);
+      newChange = newAmountPaid > orderTotal ? newAmountPaid - orderTotal : 0;
+
+      order.amount_paid = newAmountPaid;
+      order.change = newChange;
+      order.paid = newAmountPaid >= orderTotal;
     } else {
       order.amount_paid = null as any;
       order.change = null as any;
       order.paid = false;
     }
 
+    const deltaAmountPaid = newAmountPaid - oldAmountPaid;
+    const deltaChange = newChange - oldChange;
+
+    await this.verifyCashRegisterBalance(businessId, deltaAmountPaid, deltaChange);
 
     const savedOrder = await this.orderRepository.save(order);
     this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder.status);
+
+    await this.applyCashRegisterUpdates(businessId, savedOrder.id, savedOrder.order_number, deltaAmountPaid, deltaChange);
+
     return savedOrder;
   }
 
@@ -362,20 +405,37 @@ export class OrdersService {
   async update(id: string, updateOrderDto: UpdateOrderDto, businessId: string) {
     const order = await this.findOne(id);
 
+    const oldAmountPaid = Number(order.amount_paid) || 0;
+    const oldChange = Number(order.change) || 0;
+
     Object.assign(order, updateOrderDto);
 
+    let newAmountPaid = 0;
+    let newChange = 0;
+
     if (order.amount_paid !== null && order.amount_paid !== undefined) {
-      order.change = order.amount_paid > order.total ? order.amount_paid - order.total : 0;
-      order.paid = order.amount_paid >= order.total;
+      newAmountPaid = Number(order.amount_paid);
+      newChange = newAmountPaid > order.total ? newAmountPaid - order.total : 0;
+
+      order.amount_paid = newAmountPaid;
+      order.change = newChange;
+      order.paid = newAmountPaid >= order.total;
     } else {
       order.amount_paid = null as any;
       order.change = null as any;
       order.paid = false;
     }
 
+    const deltaAmountPaid = newAmountPaid - oldAmountPaid;
+    const deltaChange = newChange - oldChange;
+
+    await this.verifyCashRegisterBalance(businessId, deltaAmountPaid, deltaChange);
+
     const savedOrder = await this.orderRepository.save(order);
 
     this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder.status);
+
+    await this.applyCashRegisterUpdates(businessId, savedOrder.id, savedOrder.order_number, deltaAmountPaid, deltaChange);
 
     return await this.findOne(id);
   }
@@ -399,6 +459,9 @@ export class OrdersService {
       throw new NotFoundException(`Order with id ${orderId} not found`);
     }
 
+    const oldAmountPaid = Number(order.amount_paid) || 0;
+    const oldChange = Number(order.change) || 0;
+
     let orderTotal = 0;
 
     order.itemGroups.forEach((group) => {
@@ -413,17 +476,31 @@ export class OrdersService {
     order.total = orderTotal;
 
     if (order.amount_paid !== null && order.amount_paid !== undefined) {
-      order.change = order.amount_paid > orderTotal ? order.amount_paid - orderTotal : 0;
-      order.paid = order.amount_paid >= orderTotal;
+      const newAmountPaid = Number(order.amount_paid);
+      const newChange = newAmountPaid > orderTotal ? newAmountPaid - orderTotal : 0;
+
+      order.change = newChange;
+      order.paid = newAmountPaid >= orderTotal;
     } else {
       order.amount_paid = null as any;
       order.change = null as any;
       order.paid = false;
     }
 
+    const newAmountPaid = order.amount_paid !== null && order.amount_paid !== undefined ? Number(order.amount_paid) : 0;
+    const newChange = order.change !== null && order.change !== undefined ? Number(order.change) : 0;
+
+    const deltaAmountPaid = newAmountPaid - oldAmountPaid;
+    const deltaChange = newChange - oldChange;
+
+    if (order.business?.id) {
+      await this.verifyCashRegisterBalance(order.business.id, deltaAmountPaid, deltaChange);
+    }
+
     const savedOrder = await this.orderRepository.save(order);
     if (savedOrder.business?.id) {
-      this.ordersGateway.server.to(savedOrder.business.id).emit('orderUpdated', savedOrder);
+      this.ordersGateway.server.to(savedOrder.business.id).emit('orderUpdated', savedOrder.status);
+      await this.applyCashRegisterUpdates(savedOrder.business.id, savedOrder.id, savedOrder.order_number, deltaAmountPaid, deltaChange);
     }
     return savedOrder;
   }
@@ -464,5 +541,57 @@ export class OrdersService {
     await this.recalculateOrderTotals(orderId);
     const order = await this.findOne(orderId);
     return { message: 'Item group removed and order updated', data: order };
+  }
+
+  private async verifyCashRegisterBalance(
+    businessId: string,
+    deltaAmountPaid: number,
+    deltaChange: number,
+  ) {
+    const totalWithdrawNeeded = Math.max(0, deltaChange) + Math.max(0, -deltaAmountPaid);
+    const totalAddNeeded = Math.max(0, deltaAmountPaid) + Math.max(0, -deltaChange);
+
+    if (totalWithdrawNeeded > 0) {
+      const register = await this.cashRegisterService.getCashRegister(businessId);
+      if (Number(register.balance) + totalAddNeeded < totalWithdrawNeeded) {
+        throw new BadRequestException('No hay suficiente dinero en la caja para procesar el cambio o ajuste');
+      }
+    }
+  }
+
+  private async applyCashRegisterUpdates(
+    businessId: string,
+    orderId: string,
+    orderNumber: number,
+    deltaAmountPaid: number,
+    deltaChange: number,
+  ) {
+    if (deltaAmountPaid > 0) {
+      await this.cashRegisterService.addMoney(businessId, {
+        amount: deltaAmountPaid,
+        description: `Pago adición orden #${orderId}`,
+        order_id: orderId,
+      });
+    } else if (deltaAmountPaid < 0) {
+      await this.cashRegisterService.withdrawMoney(businessId, {
+        amount: -deltaAmountPaid,
+        description: `Ajuste pago orden #${orderId}`,
+        order_id: orderId,
+      });
+    }
+
+    if (deltaChange > 0) {
+      await this.cashRegisterService.withdrawMoney(businessId, {
+        amount: deltaChange,
+        description: `Reembolso/Cambio orden #${orderId}`,
+        order_id: orderId,
+      });
+    } else if (deltaChange < 0) {
+      await this.cashRegisterService.addMoney(businessId, {
+        amount: -deltaChange,
+        description: `Ajuste cambio orden #${orderId}`,
+        order_id: orderId,
+      });
+    }
   }
 }

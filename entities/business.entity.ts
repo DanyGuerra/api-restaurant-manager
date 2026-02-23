@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
+  OneToOne,
   ManyToOne,
   JoinColumn,
   CreateDateColumn,
@@ -16,6 +17,7 @@ import { ProductGroup } from './product-group.entity';
 import { Exclude } from 'class-transformer';
 import { OptionGroup } from './option-group.entity';
 import { Order } from './order.entity';
+import { CashRegister } from './cash-register.entity';
 
 @Entity('business')
 @Index(['name', 'owner'], { unique: true, where: 'deleted_at IS NULL' })
@@ -58,6 +60,11 @@ export class Business {
 
   @OneToMany(() => Order, (order) => order.business, { cascade: true })
   orders: Order[];
+
+  @OneToOne(() => CashRegister, (cashRegister) => cashRegister.business, {
+    cascade: true,
+  })
+  cash_register: CashRegister;
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;

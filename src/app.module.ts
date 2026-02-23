@@ -40,6 +40,9 @@ import { OrderItemGroupsModule } from './modules/order-item-groups/order-item-gr
 import { ScheduleModule } from '@nestjs/schedule';
 import { JobsModule } from './jobs/jobs.module';
 import { StatsModule } from './modules/stats/stats.module';
+import { CashRegister } from 'entities/cash-register.entity';
+import { CashRegisterTransaction } from 'entities/cash-register-transaction.entity';
+import { CashRegisterModule } from './modules/cash-register/cash-register.module';
 
 @Module({
   controllers: [AppController, HelpController, ProductOptionGroupController],
@@ -74,6 +77,8 @@ import { StatsModule } from './modules/stats/stats.module';
       OrderItemGroup,
       Label,
       OrderLabel,
+      CashRegister,
+      CashRegisterTransaction,
     ]),
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
@@ -140,6 +145,7 @@ import { StatsModule } from './modules/stats/stats.module';
     ScheduleModule.forRoot(),
     JobsModule,
     StatsModule,
+    CashRegisterModule,
   ],
 })
 export class AppModule { }

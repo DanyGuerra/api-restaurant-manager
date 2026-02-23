@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { CashRegister } from 'entities/cash-register.entity';
 import { CashRegisterTransaction, TransactionType } from 'entities/cash-register-transaction.entity';
 import { Business } from 'entities/business.entity';
@@ -18,15 +18,9 @@ export class CashRegisterService {
         private readonly businessRepository: Repository<Business>,
     ) { }
 
-    async getCashRegister(businessId: string): Promise<CashRegister> {
+    async getCashRegisterEntity(businessId: string): Promise<CashRegister> {
         let register = await this.cashRegisterRepository.findOne({
             where: { business: { id: businessId } },
-            relations: ['transactions', 'transactions.order'],
-            order: {
-                transactions: {
-                    created_at: 'DESC'
-                }
-            }
         });
 
         if (!register) {
@@ -40,14 +34,58 @@ export class CashRegisterService {
                 balance: 0,
             });
             await this.cashRegisterRepository.save(register);
-            register.transactions = [];
         }
 
         return register;
     }
 
-    async addMoney(businessId: string, addMoneyDto: AddMoneyDto): Promise<CashRegister> {
-        const register = await this.getCashRegister(businessId);
+    async getCashRegister(
+        businessId: string,
+        page: number = 1,
+        limit: number = 10,
+        sort: 'ASC' | 'DESC' = 'DESC',
+        start_date?: Date,
+        end_date?: Date,
+        type?: TransactionType,
+    ): Promise<any> {
+        const register = await this.getCashRegisterEntity(businessId);
+
+        const where: any = { cash_register: { id: register.id } };
+
+        if (type) {
+            where.type = type;
+        }
+
+        if (start_date && end_date) {
+            where.created_at = Between(start_date, end_date);
+        } else if (start_date) {
+            where.created_at = MoreThanOrEqual(start_date);
+        } else if (end_date) {
+            where.created_at = LessThanOrEqual(end_date);
+        }
+
+        const [transactions, total] = await this.transactionRepository.findAndCount({
+            where,
+            relations: ['order'],
+            order: { created_at: sort },
+            skip: (page - 1) * limit,
+            take: limit,
+        });
+
+        return {
+            ...register,
+            transactions: {
+                data: transactions,
+                total,
+                page,
+                limit,
+                totalPages: Math.ceil(total / limit),
+            }
+        };
+    }
+
+    async addMoney(businessId: string, addMoneyDto: AddMoneyDto): Promise<any> {
+        const register = await this.getCashRegisterEntity(businessId);
 
         const transaction = this.transactionRepository.create({
             cash_register: register,
@@ -68,15 +106,11 @@ export class CashRegisterService {
         await this.transactionRepository.save(transaction);
         await this.cashRegisterRepository.save(register);
 
-        return this.cashRegisterRepository.findOne({
-            where: { id: register.id },
-            relations: ['transactions'],
-            order: { transactions: { created_at: 'DESC' } }
-        }) as Promise<CashRegister>;
+        return this.getCashRegister(businessId);
     }
 
-    async withdrawMoney(businessId: string, withdrawMoneyDto: WithdrawMoneyDto): Promise<CashRegister> {
-        const register = await this.getCashRegister(businessId);
+    async withdrawMoney(businessId: string, withdrawMoneyDto: WithdrawMoneyDto): Promise<any> {
+        const register = await this.getCashRegisterEntity(businessId);
 
         if (Number(register.balance) < Number(withdrawMoneyDto.amount)) {
             throw new BadRequestException('Insufficient funds in the cash register');
@@ -102,10 +136,6 @@ export class CashRegisterService {
         await this.transactionRepository.save(transaction);
         await this.cashRegisterRepository.save(register);
 
-        return this.cashRegisterRepository.findOne({
-            where: { id: register.id },
-            relations: ['transactions'],
-            order: { transactions: { created_at: 'DESC' } }
-        }) as Promise<CashRegister>;
+        return this.getCashRegister(businessId);
     }
 }

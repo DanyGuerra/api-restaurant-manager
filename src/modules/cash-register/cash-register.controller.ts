@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Query } from '@nestjs/common';
 import { CashRegisterService } from './cash-register.service';
 import { AddMoneyDto } from './dto/add-money.dto';
 import { WithdrawMoneyDto } from './dto/withdraw-money.dto';
+import { TransactionType } from 'entities/cash-register-transaction.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -15,8 +16,24 @@ export class CashRegisterController {
 
     @Get()
     @Roles(RolName.OWNER, RolName.ADMIN)
-    getCashRegister(@BusinessIdHeader() businessId: string) {
-        return this.cashRegisterService.getCashRegister(businessId);
+    getCashRegister(
+        @BusinessIdHeader() businessId: string,
+        @Query('page') page: string = '1',
+        @Query('limit') limit: string = '10',
+        @Query('sort') sort: 'ASC' | 'DESC' = 'DESC',
+        @Query('start_date') start_date?: string,
+        @Query('end_date') end_date?: string,
+        @Query('type') type?: TransactionType,
+    ) {
+        return this.cashRegisterService.getCashRegister(
+            businessId,
+            Number(page),
+            Number(limit),
+            sort,
+            start_date ? new Date(start_date) : undefined,
+            end_date ? new Date(end_date) : undefined,
+            type,
+        );
     }
 
     @Post('add')

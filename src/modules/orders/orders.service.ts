@@ -172,14 +172,14 @@ export class OrdersService {
     if (savedOrder.amount_paid) {
       await this.cashRegisterService.addMoney(businessId, {
         amount: Number(savedOrder.amount_paid),
-        description: `Pago de orden #${savedOrder.id}`,
+        description: `Pago de orden`,
         order_id: savedOrder.id,
       });
 
       if (savedOrder.change && Number(savedOrder.change) > 0) {
         await this.cashRegisterService.withdrawMoney(businessId, {
           amount: Number(savedOrder.change),
-          description: `Cambio de orden #${savedOrder.id}`,
+          description: `Cambio de orden`,
           order_id: savedOrder.id,
         });
       }
@@ -296,7 +296,11 @@ export class OrdersService {
     let newAmountPaid = 0;
     let newChange = 0;
 
-    if (finalAmountPaid !== null && finalAmountPaid !== undefined) {
+    if (order.status === OrderStatus.CANCELLED) {
+      order.amount_paid = null as any;
+      order.change = null as any;
+      order.paid = false;
+    } else if (finalAmountPaid !== null && finalAmountPaid !== undefined) {
       newAmountPaid = Number(finalAmountPaid);
       newChange = newAmountPaid > orderTotal ? newAmountPaid - orderTotal : 0;
 
@@ -317,7 +321,8 @@ export class OrdersService {
     const savedOrder = await this.orderRepository.save(order);
     this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder.status);
 
-    await this.applyCashRegisterUpdates(businessId, savedOrder.id, savedOrder.order_number, deltaAmountPaid, deltaChange);
+    const action = savedOrder.status === OrderStatus.CANCELLED ? 'cancel' : 'update';
+    await this.applyCashRegisterUpdates(businessId, savedOrder.id, deltaAmountPaid, deltaChange, action);
 
     return savedOrder;
   }
@@ -413,7 +418,11 @@ export class OrdersService {
     let newAmountPaid = 0;
     let newChange = 0;
 
-    if (order.amount_paid !== null && order.amount_paid !== undefined) {
+    if (order.status === OrderStatus.CANCELLED) {
+      order.amount_paid = null as any;
+      order.change = null as any;
+      order.paid = false;
+    } else if (order.amount_paid !== null && order.amount_paid !== undefined) {
       newAmountPaid = Number(order.amount_paid);
       newChange = newAmountPaid > order.total ? newAmountPaid - order.total : 0;
 
@@ -435,7 +444,8 @@ export class OrdersService {
 
     this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder.status);
 
-    await this.applyCashRegisterUpdates(businessId, savedOrder.id, savedOrder.order_number, deltaAmountPaid, deltaChange);
+    const action = savedOrder.status === OrderStatus.CANCELLED ? 'cancel' : 'update';
+    await this.applyCashRegisterUpdates(businessId, savedOrder.id, deltaAmountPaid, deltaChange, action);
 
     return await this.findOne(id);
   }
@@ -443,10 +453,23 @@ export class OrdersService {
   async remove(id: string, businessId: string) {
     const order = await this.findOne(id);
 
-    const removedOrder = await this.orderRepository.softRemove(order);
+    const amountPaid = Number(order.amount_paid) || 0;
+    const change = Number(order.change) || 0;
 
-    this.ordersGateway.server.to(businessId).emit('orderDeleted', removedOrder.status);
-    return removedOrder;
+    await this.verifyCashRegisterBalance(businessId, -amountPaid, -change);
+
+    await this.orderRepository.softDelete(order.id);
+
+    await this.applyCashRegisterUpdates(
+      businessId,
+      order.id,
+      -amountPaid,
+      -change,
+      'delete'
+    );
+
+    this.ordersGateway.server.to(businessId).emit('orderDeleted', order.status);
+    return order;
   }
 
   async recalculateOrderTotals(orderId: string) {
@@ -500,7 +523,7 @@ export class OrdersService {
     const savedOrder = await this.orderRepository.save(order);
     if (savedOrder.business?.id) {
       this.ordersGateway.server.to(savedOrder.business.id).emit('orderUpdated', savedOrder.status);
-      await this.applyCashRegisterUpdates(savedOrder.business.id, savedOrder.id, savedOrder.order_number, deltaAmountPaid, deltaChange);
+      await this.applyCashRegisterUpdates(savedOrder.business.id, savedOrder.id, deltaAmountPaid, deltaChange, 'update');
     }
     return savedOrder;
   }
@@ -562,20 +585,24 @@ export class OrdersService {
   private async applyCashRegisterUpdates(
     businessId: string,
     orderId: string,
-    orderNumber: number,
     deltaAmountPaid: number,
     deltaChange: number,
+    action: 'update' | 'delete' | 'cancel' = 'update'
   ) {
+    let actionText = '(Por actualización)';
+    if (action === 'delete') actionText = '(Por eliminación)';
+    if (action === 'cancel') actionText = '(Por cancelación)';
+
     if (deltaAmountPaid > 0) {
       await this.cashRegisterService.addMoney(businessId, {
         amount: deltaAmountPaid,
-        description: `Pago adición orden #${orderId}`,
+        description: `Pago adición orden ${actionText}`,
         order_id: orderId,
       });
     } else if (deltaAmountPaid < 0) {
       await this.cashRegisterService.withdrawMoney(businessId, {
         amount: -deltaAmountPaid,
-        description: `Ajuste pago orden #${orderId}`,
+        description: `Ajuste pago orden ${actionText}`,
         order_id: orderId,
       });
     }
@@ -583,13 +610,13 @@ export class OrdersService {
     if (deltaChange > 0) {
       await this.cashRegisterService.withdrawMoney(businessId, {
         amount: deltaChange,
-        description: `Reembolso/Cambio orden #${orderId}`,
+        description: `Reembolso/Cambio orden ${actionText}`,
         order_id: orderId,
       });
     } else if (deltaChange < 0) {
       await this.cashRegisterService.addMoney(businessId, {
         amount: -deltaChange,
-        description: `Ajuste cambio orden #${orderId}`,
+        description: `Ajuste cambio orden ${actionText}`,
         order_id: orderId,
       });
     }

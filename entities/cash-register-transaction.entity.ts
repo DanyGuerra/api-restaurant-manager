@@ -34,7 +34,10 @@ export class CashRegisterTransaction {
     @Column({ type: 'varchar', length: 255, nullable: true })
     description: string;
 
-    @ManyToOne(() => Order, { nullable: true, onDelete: 'SET NULL' })
+    @Column({ type: 'uuid', nullable: true })
+    order_id: string;
+
+    @ManyToOne(() => Order, { nullable: true, createForeignKeyConstraints: false })
     @JoinColumn({ name: 'order_id' })
     order: Order;
 

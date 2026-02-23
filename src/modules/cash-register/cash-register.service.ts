@@ -87,24 +87,18 @@ export class CashRegisterService {
     async addMoney(businessId: string, addMoneyDto: AddMoneyDto): Promise<any> {
         const register = await this.getCashRegisterEntity(businessId);
 
+        register.balance = Number(register.balance) + Number(addMoneyDto.amount);
+        await this.cashRegisterRepository.save(register);
+
         const transaction = this.transactionRepository.create({
             cash_register: register,
             type: TransactionType.ADD,
             amount: addMoneyDto.amount,
             description: addMoneyDto.description,
-            order: addMoneyDto.order_id ? { id: addMoneyDto.order_id } as any : null,
+            order: addMoneyDto.order_id ? ({ id: addMoneyDto.order_id } as any) : null,
         });
 
-        register.balance = Number(register.balance) + Number(addMoneyDto.amount);
-
-        // Ensure bidirectional relationship is established
-        if (!register.transactions) {
-            register.transactions = [];
-        }
-        register.transactions.push(transaction);
-
         await this.transactionRepository.save(transaction);
-        await this.cashRegisterRepository.save(register);
 
         return this.getCashRegister(businessId);
     }
@@ -116,25 +110,19 @@ export class CashRegisterService {
             throw new BadRequestException('Insufficient funds in the cash register');
         }
 
+        // Update balance
+        register.balance = Number(register.balance) - Number(withdrawMoneyDto.amount);
+        await this.cashRegisterRepository.save(register);
+
         const transaction = this.transactionRepository.create({
             cash_register: register,
             type: TransactionType.WITHDRAW,
             amount: withdrawMoneyDto.amount,
             description: withdrawMoneyDto.description,
-            order: withdrawMoneyDto.order_id ? { id: withdrawMoneyDto.order_id } as any : null,
+            order: withdrawMoneyDto.order_id ? ({ id: withdrawMoneyDto.order_id } as any) : null,
         });
 
-        // Update balance
-        register.balance = Number(register.balance) - Number(withdrawMoneyDto.amount);
-
-        // Ensure bidirectional relationship is established
-        if (!register.transactions) {
-            register.transactions = [];
-        }
-        register.transactions.push(transaction);
-
         await this.transactionRepository.save(transaction);
-        await this.cashRegisterRepository.save(register);
 
         return this.getCashRegister(businessId);
     }

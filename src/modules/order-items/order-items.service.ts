@@ -62,7 +62,7 @@ export class OrderItemsService {
     if (savedItem.group?.order?.business?.id) {
       this.ordersGateway.server
         .to(savedItem.group.order.business.id)
-        .emit('orderUpdated', savedItem.group.order.status);
+        .emit('orderUpdated', savedItem.group.order);
     }
 
     return savedItem;

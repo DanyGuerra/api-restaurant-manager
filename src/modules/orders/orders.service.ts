@@ -143,7 +143,7 @@ export class OrdersService {
       throw new BadRequestException('Amount paid is less than the total');
     }
 
-    const changeDue = amount_paid && amount_paid > orderTotal ? amount_paid - orderTotal : 0;
+    const changeDue = amount_paid && amount_paid > orderTotal ? Math.round((amount_paid - orderTotal) * 100) / 100 : 0;
 
     if (changeDue > 0) {
       const register = await this.cashRegisterService.getCashRegister(businessId);
@@ -167,7 +167,7 @@ export class OrdersService {
     });
 
     const savedOrder = await this.orderRepository.save(order);
-    this.ordersGateway.server.to(businessId).emit('orderCreated', savedOrder.status);
+    this.ordersGateway.server.to(businessId).emit('orderCreated', savedOrder);
 
     if (savedOrder.amount_paid) {
       await this.cashRegisterService.addMoney(businessId, {
@@ -313,13 +313,13 @@ export class OrdersService {
       order.paid = false;
     }
 
-    const deltaAmountPaid = newAmountPaid - oldAmountPaid;
-    const deltaChange = newChange - oldChange;
+    const deltaAmountPaid = Math.round((newAmountPaid - oldAmountPaid) * 100) / 100;
+    const deltaChange = Math.round((newChange - oldChange) * 100) / 100;
 
     await this.verifyCashRegisterBalance(businessId, deltaAmountPaid, deltaChange);
 
     const savedOrder = await this.orderRepository.save(order);
-    this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder.status);
+    this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder);
 
     const action = savedOrder.status === OrderStatus.CANCELLED ? 'cancel' : 'update';
     await this.applyCashRegisterUpdates(businessId, savedOrder.id, deltaAmountPaid, deltaChange, action);
@@ -413,36 +413,44 @@ export class OrdersService {
     const oldAmountPaid = Number(order.amount_paid) || 0;
     const oldChange = Number(order.change) || 0;
 
+    const isAmountPaidUpdated = updateOrderDto.amount_paid !== undefined;
+
     Object.assign(order, updateOrderDto);
 
-    let newAmountPaid = 0;
-    let newChange = 0;
+    let newAmountPaid = oldAmountPaid;
+    let newChange = oldChange;
 
     if (order.status === OrderStatus.CANCELLED) {
       order.amount_paid = null as any;
       order.change = null as any;
       order.paid = false;
-    } else if (order.amount_paid !== null && order.amount_paid !== undefined) {
-      newAmountPaid = Number(order.amount_paid);
-      newChange = newAmountPaid > order.total ? newAmountPaid - order.total : 0;
+      newAmountPaid = 0;
+      newChange = 0;
+    } else if (isAmountPaidUpdated) {
+      if (order.amount_paid !== null && order.amount_paid !== undefined) {
+        newAmountPaid = Number(order.amount_paid);
+        newChange = newAmountPaid > Number(order.total) ? newAmountPaid - Number(order.total) : 0;
 
-      order.amount_paid = newAmountPaid;
-      order.change = newChange;
-      order.paid = newAmountPaid >= order.total;
-    } else {
-      order.amount_paid = null as any;
-      order.change = null as any;
-      order.paid = false;
+        order.amount_paid = newAmountPaid;
+        order.change = newChange;
+        order.paid = newAmountPaid >= Number(order.total);
+      } else {
+        order.amount_paid = null as any;
+        order.change = null as any;
+        order.paid = false;
+        newAmountPaid = 0;
+        newChange = 0;
+      }
     }
 
-    const deltaAmountPaid = newAmountPaid - oldAmountPaid;
-    const deltaChange = newChange - oldChange;
+    const deltaAmountPaid = Math.round((newAmountPaid - oldAmountPaid) * 100) / 100;
+    const deltaChange = Math.round((newChange - oldChange) * 100) / 100;
 
     await this.verifyCashRegisterBalance(businessId, deltaAmountPaid, deltaChange);
 
     const savedOrder = await this.orderRepository.save(order);
 
-    this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder.status);
+    this.ordersGateway.server.to(businessId).emit('orderUpdated', savedOrder);
 
     const action = savedOrder.status === OrderStatus.CANCELLED ? 'cancel' : 'update';
     await this.applyCashRegisterUpdates(businessId, savedOrder.id, deltaAmountPaid, deltaChange, action);
@@ -468,7 +476,7 @@ export class OrdersService {
       'delete'
     );
 
-    this.ordersGateway.server.to(businessId).emit('orderDeleted', order.status);
+    this.ordersGateway.server.to(businessId).emit('orderDeleted', order);
     return order;
   }
 
@@ -513,8 +521,8 @@ export class OrdersService {
     const newAmountPaid = order.amount_paid !== null && order.amount_paid !== undefined ? Number(order.amount_paid) : 0;
     const newChange = order.change !== null && order.change !== undefined ? Number(order.change) : 0;
 
-    const deltaAmountPaid = newAmountPaid - oldAmountPaid;
-    const deltaChange = newChange - oldChange;
+    const deltaAmountPaid = Math.round((newAmountPaid - oldAmountPaid) * 100) / 100;
+    const deltaChange = Math.round((newChange - oldChange) * 100) / 100;
 
     if (order.business?.id) {
       await this.verifyCashRegisterBalance(order.business.id, deltaAmountPaid, deltaChange);
@@ -522,7 +530,7 @@ export class OrdersService {
 
     const savedOrder = await this.orderRepository.save(order);
     if (savedOrder.business?.id) {
-      this.ordersGateway.server.to(savedOrder.business.id).emit('orderUpdated', savedOrder.status);
+      this.ordersGateway.server.to(savedOrder.business.id).emit('orderUpdated', savedOrder);
       await this.applyCashRegisterUpdates(savedOrder.business.id, savedOrder.id, deltaAmountPaid, deltaChange, 'update');
     }
     return savedOrder;

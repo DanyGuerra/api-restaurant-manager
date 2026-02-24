@@ -25,7 +25,7 @@ export class UserBusinessRolesService {
   async assignRoleByEmail(email: string, businessId: string, roleId: number) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      throw new NotFoundException("Invalid user email");
+      throw new BadRequestException('No se ha podido completar la asignación. Verifica la información proporcionada.');
     }
 
     const existingRole = await this.ubrRepository.findOne({

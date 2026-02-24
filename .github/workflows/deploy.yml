@@ -24,11 +24,7 @@ jobs:
 
             cd /var/www/api-restaurant-manager
 
-            git checkout main
-            git pull origin main
+            git checkout main_docker
+            git pull origin main_docker
 
-            npm install
-            npm run build
-
-            pm2 start ecosystem.config.js --env production || pm2 reload ecosystem.config.js --env production
-            pm2 save
+            docker compose -f docker-compose.prod.yml up -d --build

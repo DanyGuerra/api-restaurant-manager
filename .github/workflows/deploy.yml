@@ -49,7 +49,7 @@ jobs:
           docker rm resthub-api || true &&
           docker run -d \
             --env-file /home/ec2-user/resthub.env \
-            -p 80:3000 \
+            -p 80:3001 \
             --name resthub-api \
             289669703784.dkr.ecr.us-east-1.amazonaws.com/resthub/api:latest
           "

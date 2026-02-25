@@ -30,10 +30,10 @@ jobs:
         run: docker build -t resthub-api .
 
       - name: Tag image
-        run: docker tag resthub-api:latest 289669703784.dkr.ecr.us-east-1.amazonaws.com/resthub-api:latest
+        run: docker tag resthub-api:latest 289669703784.dkr.ecr.us-east-1.amazonaws.com/resthub/api:latest
 
       - name: Push image
-        run: docker push 289669703784.dkr.ecr.us-east-1.amazonaws.com/resthub-api:latest
+        run: docker push 289669703784.dkr.ecr.us-east-1.amazonaws.com/resthub/api:latest
 
       - name: Setup SSH
         run: |
@@ -44,12 +44,12 @@ jobs:
       - name: Deploy on EC2
         run: |
           ssh -i ~/.ssh/key.pem -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST_DOCKER }} "
-          docker pull 289669703784.dkr.ecr.us-east-1.amazonaws.com/resthub-api:latest &&
+          docker pull 289669703784.dkr.ecr.us-east-1.amazonaws.com/resthub/api:latest &&
           docker stop resthub-api || true &&
           docker rm resthub-api || true &&
           docker run -d \
             --env-file /home/ec2-user/resthub.env \
             -p 80:3000 \
             --name resthub-api \
-            289669703784.dkr.ecr.us-east-1.amazonaws.com/resthub-api:latest
+            289669703784.dkr.ecr.us-east-1.amazonaws.com/resthub/api:latest
           "

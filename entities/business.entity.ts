@@ -31,6 +31,24 @@ export class Business {
   @Column({ nullable: true })
   address: string;
 
+  @Column({ nullable: true, name: 'street' })
+  street: string;
+
+  @Column({ nullable: true, name: 'neighborhood' })
+  neighborhood: string;
+
+  @Column({ nullable: true, name: 'city' })
+  city: string;
+
+  @Column({ nullable: true, name: 'state' })
+  state: string;
+
+  @Column({ nullable: true, name: 'zip_code' })
+  zipCode: string;
+
+  @Column({ nullable: true, name: 'phone' })
+  phone: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   created_at: Date;
 

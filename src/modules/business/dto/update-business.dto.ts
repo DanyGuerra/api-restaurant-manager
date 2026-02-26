@@ -2,9 +2,34 @@ import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateBusinessDto {
   @IsString()
-  name: string;
+  @IsOptional()
+  name?: string;
 
   @IsString()
   @IsOptional()
-  address: string;
+  address?: string;
+
+  @IsString()
+  @IsOptional()
+  street?: string;
+
+  @IsString()
+  @IsOptional()
+  neighborhood?: string;
+
+  @IsString()
+  @IsOptional()
+  city?: string;
+
+  @IsString()
+  @IsOptional()
+  state?: string;
+
+  @IsString()
+  @IsOptional()
+  zipCode?: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
 }

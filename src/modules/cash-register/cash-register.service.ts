@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+import { Repository, Between, LessThanOrEqual, MoreThanOrEqual, DataSource } from 'typeorm';
 import { CashRegister } from 'entities/cash-register.entity';
 import { CashRegisterTransaction, TransactionType } from 'entities/cash-register-transaction.entity';
 import { Business } from 'entities/business.entity';
@@ -16,6 +16,7 @@ export class CashRegisterService {
         private readonly transactionRepository: Repository<CashRegisterTransaction>,
         @InjectRepository(Business)
         private readonly businessRepository: Repository<Business>,
+        private readonly dataSource: DataSource,
     ) { }
 
     async getCashRegisterEntity(businessId: string): Promise<CashRegister> {
@@ -85,44 +86,74 @@ export class CashRegisterService {
     }
 
     async addMoney(businessId: string, addMoneyDto: AddMoneyDto): Promise<any> {
-        const register = await this.getCashRegisterEntity(businessId);
+        const registerData = await this.getCashRegisterEntity(businessId);
 
-        register.balance = Number(register.balance) + Number(addMoneyDto.amount);
-        await this.cashRegisterRepository.save(register);
+        await this.dataSource.transaction(async (manager) => {
+            const register = await manager.findOne(CashRegister, {
+                where: { id: registerData.id },
+                lock: { mode: 'pessimistic_write' },
+            });
 
-        const transaction = this.transactionRepository.create({
-            cash_register: register,
-            type: TransactionType.ADD,
-            amount: addMoneyDto.amount,
-            description: addMoneyDto.description,
-            order: addMoneyDto.order_id ? ({ id: addMoneyDto.order_id } as any) : null,
+            if (!register) throw new NotFoundException('Cash Register not found');
+
+            const previous_balance = Number(register.balance);
+            const amount = Number(addMoneyDto.amount);
+            const new_balance = previous_balance + amount;
+
+            register.balance = new_balance;
+            await manager.save(CashRegister, register);
+
+            const transaction = manager.create(CashRegisterTransaction, {
+                cash_register: register,
+                type: TransactionType.ADD,
+                amount: amount,
+                previous_balance: previous_balance,
+                new_balance: new_balance,
+                description: addMoneyDto.description,
+                order: addMoneyDto.order_id ? ({ id: addMoneyDto.order_id } as any) : null,
+            });
+
+            await manager.save(CashRegisterTransaction, transaction);
         });
-
-        await this.transactionRepository.save(transaction);
 
         return this.getCashRegister(businessId);
     }
 
     async withdrawMoney(businessId: string, withdrawMoneyDto: WithdrawMoneyDto): Promise<any> {
-        const register = await this.getCashRegisterEntity(businessId);
+        const registerData = await this.getCashRegisterEntity(businessId);
 
-        if (Number(register.balance) < Number(withdrawMoneyDto.amount)) {
-            throw new BadRequestException('Insufficient funds in the cash register');
-        }
+        await this.dataSource.transaction(async (manager) => {
+            const register = await manager.findOne(CashRegister, {
+                where: { id: registerData.id },
+                lock: { mode: 'pessimistic_write' },
+            });
 
-        // Update balance
-        register.balance = Number(register.balance) - Number(withdrawMoneyDto.amount);
-        await this.cashRegisterRepository.save(register);
+            if (!register) throw new NotFoundException('Cash Register not found');
 
-        const transaction = this.transactionRepository.create({
-            cash_register: register,
-            type: TransactionType.WITHDRAW,
-            amount: withdrawMoneyDto.amount,
-            description: withdrawMoneyDto.description,
-            order: withdrawMoneyDto.order_id ? ({ id: withdrawMoneyDto.order_id } as any) : null,
+            const previous_balance = Number(register.balance);
+            const amount = Number(withdrawMoneyDto.amount);
+
+            if (previous_balance < amount) {
+                throw new BadRequestException('Insufficient funds in the cash register');
+            }
+
+            const new_balance = previous_balance - amount;
+
+            register.balance = new_balance;
+            await manager.save(CashRegister, register);
+
+            const transaction = manager.create(CashRegisterTransaction, {
+                cash_register: register,
+                type: TransactionType.WITHDRAW,
+                amount: amount,
+                previous_balance: previous_balance,
+                new_balance: new_balance,
+                description: withdrawMoneyDto.description,
+                order: withdrawMoneyDto.order_id ? ({ id: withdrawMoneyDto.order_id } as any) : null,
+            });
+
+            await manager.save(CashRegisterTransaction, transaction);
         });
-
-        await this.transactionRepository.save(transaction);
 
         return this.getCashRegister(businessId);
     }

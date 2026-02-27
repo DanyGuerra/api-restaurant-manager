@@ -31,6 +31,12 @@ export class CashRegisterTransaction {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     amount: number;
 
+    @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+    previous_balance: number;
+
+    @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
+    new_balance: number;
+
     @Column({ type: 'varchar', length: 255, nullable: true })
     description: string;
 

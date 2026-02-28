@@ -61,3 +61,4 @@ jobs:
               -p 80:3001 \
               --name resthub-api \
               289669703784.dkr.ecr.us-east-1.amazonaws.com/resthub/api:latest
+          "

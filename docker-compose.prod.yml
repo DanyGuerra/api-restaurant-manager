@@ -1,0 +1,42 @@
+
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api-restaurant-manager-prod
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      # Database Connection
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT:-6543}
+      - DB_USERNAME=${DB_USERNAME:-postgres}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME:-postgres}
+      
+      # Application Settings
+      - PORT=3001
+      - NODE_ENV=production
+      
+      # Security & Auth
+      - API_KEY=${API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-15m}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN:-7d}
+      
+      # External Services
+      - HOST_FRONTEND=${HOST_FRONTEND}
+      - MAIL_HOST=${MAIL_HOST}
+      - MAIL_USER=${MAIL_USER}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - MAIL_FROM=${MAIL_FROM}
+    networks:
+      - prod-network
+
+networks:
+  prod-network:
+    driver: bridge

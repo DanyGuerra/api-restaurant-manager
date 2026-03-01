@@ -1,0 +1,42 @@
+# Dependency directories
+node_modules/
+npm-debug.log
+npm-debug.log.*
+
+# Build output
+dist/
+build/
+coverage/
+
+# Environment variables
+.env
+.env.*
+
+# Git
+.git/
+.gitignore
+.github/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# macOS
+.DS_Store
+
+# Testing
+test/
+
+# Logs
+logs/
+*.log
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml

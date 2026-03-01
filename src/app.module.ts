@@ -91,9 +91,9 @@ import { CashRegisterModule } from './modules/cash-register/cash-register.module
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,
-      ssl: {
+      ssl: process.env.NODE_ENV === 'production' ? {
         rejectUnauthorized: false,
-      },
+      } : undefined,
     }),
     AuthModule,
     UsersModule,

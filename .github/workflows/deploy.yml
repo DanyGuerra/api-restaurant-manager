@@ -3,7 +3,7 @@ name: Deploy to EC2 (main)
 on:
   push:
     branches:
-      - main
+      - main_pm2
 
 jobs:
   deploy:

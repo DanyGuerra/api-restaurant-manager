@@ -55,6 +55,9 @@ export class Business {
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updated_at: Date;
 
+  @Column({ name: 'owner_id' })
+  owner_id: string;
+
   @Exclude()
   @ManyToOne(() => User, (user) => user.ownedBusinesses, {
     eager: true,

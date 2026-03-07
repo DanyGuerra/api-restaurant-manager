@@ -43,6 +43,7 @@ import { StatsModule } from './modules/stats/stats.module';
 import { CashRegister } from 'entities/cash-register.entity';
 import { CashRegisterTransaction } from 'entities/cash-register-transaction.entity';
 import { CashRegisterModule } from './modules/cash-register/cash-register.module';
+import { TicketSettingModule } from './modules/ticket-setting/ticket-setting.module';
 
 @Module({
   controllers: [AppController, HelpController, ProductOptionGroupController],
@@ -91,9 +92,9 @@ import { CashRegisterModule } from './modules/cash-register/cash-register.module
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,
-      ssl: {
+      ssl: process.env.NODE_ENV === 'production' ? {
         rejectUnauthorized: false,
-      },
+      } : undefined,
     }),
     AuthModule,
     UsersModule,
@@ -146,6 +147,7 @@ import { CashRegisterModule } from './modules/cash-register/cash-register.module
     JobsModule,
     StatsModule,
     CashRegisterModule,
+    TicketSettingModule,
   ],
 })
 export class AppModule { }

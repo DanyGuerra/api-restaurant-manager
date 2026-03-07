@@ -18,6 +18,7 @@ import { Exclude } from 'class-transformer';
 import { OptionGroup } from './option-group.entity';
 import { Order } from './order.entity';
 import { CashRegister } from './cash-register.entity';
+import { TicketSetting } from './ticket-setting.entity';
 
 @Entity('business')
 @Index(['name', 'owner'], { unique: true, where: 'deleted_at IS NULL' })
@@ -55,6 +56,9 @@ export class Business {
   @UpdateDateColumn({ type: 'timestamp', nullable: true })
   updated_at: Date;
 
+  @Column({ name: 'owner_id' })
+  owner_id: string;
+
   @Exclude()
   @ManyToOne(() => User, (user) => user.ownedBusinesses, {
     eager: true,
@@ -83,6 +87,12 @@ export class Business {
     cascade: true,
   })
   cash_register: CashRegister;
+
+  @OneToOne(() => TicketSetting, (ticketSetting) => ticketSetting.business, {
+    cascade: true,
+    eager: true,
+  })
+  ticket_setting: TicketSetting;
 
   @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;

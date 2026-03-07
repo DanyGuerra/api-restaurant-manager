@@ -43,6 +43,7 @@ import { StatsModule } from './modules/stats/stats.module';
 import { CashRegister } from 'entities/cash-register.entity';
 import { CashRegisterTransaction } from 'entities/cash-register-transaction.entity';
 import { CashRegisterModule } from './modules/cash-register/cash-register.module';
+import { TicketSettingModule } from './modules/ticket-setting/ticket-setting.module';
 
 @Module({
   controllers: [AppController, HelpController, ProductOptionGroupController],
@@ -146,6 +147,7 @@ import { CashRegisterModule } from './modules/cash-register/cash-register.module
     JobsModule,
     StatsModule,
     CashRegisterModule,
+    TicketSettingModule,
   ],
 })
 export class AppModule { }

@@ -21,6 +21,7 @@ export class BusinessService {
     const business = this.businessRepository.create({
       ...dto,
       owner: { id: userId },
+      ticket_setting: {},
     });
 
     try {

@@ -57,6 +57,7 @@ jobs:
             docker rm resthub-api || true
             
             docker run -d \
+              --restart always \
               --env-file /home/ec2-user/resthub.env \
               -p 3001:3001 \
               --name resthub-api \
